@@ -1,0 +1,81 @@
+import MyClassrooms from "views/Student/MyClassrooms.js";
+import ClassroomDetails from "views/Student/ClassroomDetails.js";
+import AcademicRecord from "views/Student/AcademicRecord.js";
+import TakeQuiz from "views/Student/TakeQuiz.js";
+import QuizResult from "views/Student/QuizResult.js";
+import Announcements from "views/Student/Announcements.js";
+import MyProfile from "../views/shared/MyProfile.js";
+import WeeklyChallengePage from "../views/Student/WeeklyChallengePage.js";
+ import TakeChallengePage from "../views/Student/TakeChallengePage.js";
+import ChallengeResultPage from "../views/Student/ChallengeResultPage.js";
+
+
+const studentRoutes = [
+    // --- المسارات التي تظهر في الشريط الجانبي ---
+    {
+        path: "/my-classrooms",
+        name: "فصولي الدراسية",
+        icon: "nc-icon nc-paper-2",
+        component: MyClassrooms,
+        layout: "/student",
+    },
+    {
+        path: "/academic-record",
+        name: "السجل الأكاديمي",
+        icon: "nc-icon nc-notes",
+        component: AcademicRecord,
+        layout: "/student",
+    },
+    {
+        path: "/announcements",
+        name: "الإعلانات",
+        icon: "nc-icon nc-bell-55",
+        component: Announcements,
+        layout: "/student",
+    },
+    {
+        path: "/my-profile",
+        name: "ملفي الشخصي",
+        icon: "nc-icon nc-single-02",
+        component: MyProfile,
+        layout: "/student",
+    },
+    {
+        path: "/weekly-challenge", 
+        name: "تحدي الأسبوع",
+        icon: "fas fa-trophy text-warning",
+        component: WeeklyChallengePage,
+        layout: "/student",
+    },
+  
+
+    // --- المسارات المخفية ---
+    {
+        path: "/classrooms/:classroomId",
+        component: ClassroomDetails,
+        layout: "/student",
+    },
+    {
+        path: "/quiz/:quizId",
+        component: TakeQuiz,
+        layout: "/student",
+    },
+    {
+        path: "/quiz-result/:submissionId",
+        component: QuizResult,
+        layout: "/student",
+    },
+    // --- ✨ 2. إضافة المسارات المخفية الجديدة للتحدي ---
+    {
+        path: "/challenge/take/:courseId", // صفحة إجراء التحدي
+        component: TakeChallengePage,
+        layout: "/student",
+    },
+    {
+        path: "/challenge/result/:courseId", // صفحة عرض نتيجة التحدي
+        component: ChallengeResultPage,
+        layout: "/student",
+    },
+];
+
+export default studentRoutes;
