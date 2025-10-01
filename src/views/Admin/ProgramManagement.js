@@ -1,36 +1,26 @@
-// src/views/ProgramManagement.js
-
 import React, { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
-import { Link } from "react-router-dom"; // --- تأكد من استيراد Link ---
-
+import { Link } from "react-router-dom";
 import {
-    Card,
-    Table,
-    Container,
-    Row,
-    Col,
-    Button,
-    Spinner,
-    Modal,
-    Form,
+    Card, Table, Container, Row, Col, Button,
+    Spinner, Modal, Form, Badge
 } from "react-bootstrap";
-
-import { getPrograms, createProgram, updateProgram, deleteProgram, getCoursesForProgram, getStudentsForProgram } from "services/admin/programService";
+import {
+    getPrograms, createProgram, updateProgram, deleteProgram,
+    getCoursesForProgram, getStudentsForProgram, toggleProgramRegistration
+} from "services/admin/programService";
 
 function ProgramManagement() {
     const [programs, setPrograms] = useState([]);
     const [loading, setLoading] = useState(true);
     const [courseCounts, setCourseCounts] = useState({});
     const [studentCounts, setStudentCounts] = useState({});
-
     const [showAddModal, setShowAddModal] = useState(false);
-    const [newProgram, setNewProgram] = useState({ name: "", description: "" });
-
+    const [newProgram, setNewProgram] = useState({ name: "", description: "", isRegistrationOpen: false });
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingProgram, setEditingProgram] = useState(null);
 
-    const fetchPrograms = async () => {
+    const fetchProgramsData = async () => {
         setLoading(true);
         try {
             const programsResponse = await getPrograms();
@@ -38,76 +28,94 @@ function ProgramManagement() {
             setPrograms(fetchedPrograms);
 
             if (fetchedPrograms.length > 0) {
-                const courseCountPromises = fetchedPrograms.map(p => getCoursesForProgram(p.academicProgramId));
-                const studentCountPromises = fetchedPrograms.map(p => getStudentsForProgram(p.academicProgramId));
+                const courseCountPromises = fetchedPrograms.map(p => getCoursesForProgram(p.academicProgramId).catch(() => ({ data: [] })));
+                const studentCountPromises = fetchedPrograms.map(p => getStudentsForProgram(p.academicProgramId).catch(() => ({ data: [] })));
                 const [courseResponses, studentResponses] = await Promise.all([Promise.all(courseCountPromises), Promise.all(studentCountPromises)]);
 
                 const newCourseCounts = {};
-                courseResponses.forEach((response, index) => { newCourseCounts[fetchedPrograms[index].academicProgramId] = response.data.length; });
+                courseResponses.forEach((res, i) => { newCourseCounts[fetchedPrograms[i].academicProgramId] = res.data.length; });
                 setCourseCounts(newCourseCounts);
 
                 const newStudentCounts = {};
-                studentResponses.forEach((response, index) => { newStudentCounts[fetchedPrograms[index].academicProgramId] = response.data.length; });
+                studentResponses.forEach((res, i) => { newStudentCounts[fetchedPrograms[i].academicProgramId] = res.data.length; });
                 setStudentCounts(newStudentCounts);
-            } else {
-                setCourseCounts({});
-                setStudentCounts({});
             }
-        } catch (error) { toast.error("فشل في جلب البيانات."); }
-        finally { setLoading(false); }
+        } catch (error) {
+            toast.error("فشل في جلب بيانات البرامج.");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    useEffect(() => { fetchPrograms(); }, []);
+    useEffect(() => {
+        fetchProgramsData();
+    }, []);
 
-    const handleShowAddModal = () => { setNewProgram({ name: "", description: "" }); setShowAddModal(true); };
-    const handleCloseAddModal = () => setShowAddModal(false);
-    const handleNewProgramInputChange = (e) => { setNewProgram({ ...newProgram, [e.target.name]: e.target.value }); };
-    const handleAddFormSubmit = async () => {
-        if (!newProgram.name) { toast.error("اسم البرنامج مطلوب."); return; }
-        try { await createProgram(newProgram); toast.success("تم إنشاء البرنامج بنجاح!"); handleCloseAddModal(); fetchPrograms(); }
-        catch (error) { toast.error("فشل في إنشاء البرنامج." + error.response.data); }
+    const handleInputChange = (e, setStateFunc) => {
+        const { name, value, type, checked } = e.target;
+        const inputValue = type === 'checkbox' || type === 'switch' ? checked : value;
+        setStateFunc(prevState => ({ ...prevState, [name]: inputValue }));
     };
 
-    const handleShowEditModal = (program) => { setEditingProgram(program); setShowEditModal(true); };
-    const handleCloseEditModal = () => setShowEditModal(false);
-    const handleEditProgramInputChange = (e) => { setEditingProgram({ ...editingProgram, [e.target.name]: e.target.value }); };
-    const handleEditFormSubmit = async () => {
-        if (!editingProgram || !editingProgram.name) { toast.error("اسم البرنامج مطلوب."); return; }
+    const handleShowAddModal = () => {
+        setNewProgram({ name: "", description: "", isRegistrationOpen: false });
+        setShowAddModal(true);
+    };
+
+    const handleAddFormSubmit = async (e) => {
+        e.preventDefault();
+        if (!newProgram.name) {
+            toast.warn("اسم البرنامج مطلوب.");
+            return;
+        }
         try {
-            await updateProgram(editingProgram.academicProgramId, { name: editingProgram.name, description: editingProgram.description });
-            toast.success("تم تحديث البرنامج بنجاح!"); handleCloseEditModal(); fetchPrograms();
-        } catch (error) { toast.error("فشل في تحديث البرنامج." + error.response.data); }
+            await createProgram(newProgram);
+            toast.success("تم إنشاء البرنامج بنجاح!");
+            setShowAddModal(false);
+            fetchProgramsData();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "فشل في إنشاء البرنامج.");
+        }
+    };
+
+    const handleShowEditModal = (program) => {
+        setEditingProgram(program);
+        setShowEditModal(true);
+    };
+
+    const handleEditFormSubmit = async (e) => {
+        e.preventDefault();
+        if (!editingProgram?.name) return;
+        try {
+            await updateProgram(editingProgram.academicProgramId, editingProgram);
+            toast.success("تم تحديث البرنامج بنجاح!");
+            setShowEditModal(false);
+            fetchProgramsData();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "فشل في تحديث البرنامج.");
+        }
+    };
+
+    const handleToggleRegistration = async (programId) => {
+        try {
+            await toggleProgramRegistration(programId);
+            toast.success("تم تغيير حالة التسجيل بنجاح.");
+            fetchProgramsData(); // Refresh data to show the new status
+        } catch (error) {
+            toast.error("فشل في تغيير حالة التسجيل.");
+        }
     };
 
     const handleDeleteProgram = async (programId) => {
         if (window.confirm("هل أنت متأكد من رغبتك في حذف هذا البرنامج؟")) {
-            try { await deleteProgram(programId); toast.success("تم حذف البرنامج بنجاح!"); fetchPrograms(); }
-            catch (error) { toast.error("فشل في حذف البرنامج." + error.response.data); }
+            try {
+                await deleteProgram(programId);
+                toast.success("تم حذف البرنامج بنجاح!");
+                fetchProgramsData();
+            } catch (error) {
+                toast.error(error.response?.data?.message || "فشل في حذف البرنامج.");
+            }
         }
-    };
-
-    const renderTableBody = () => {
-        const colSpan = 6;
-        if (loading) { return (<tr><td colSpan={colSpan} className="text-center"><Spinner animation="border" /></td></tr>); }
-        if (programs.length === 0) { return (<tr><td colSpan={colSpan} className="text-center">لا توجد برامج أكاديمية لعرضها.</td></tr>); }
-        return programs.map((program) => (
-            <tr key={program.academicProgramId}>
-                <td>{program.academicProgramId}</td>
-                <td>{program.name}</td>
-                <td>{program.description || "لا يوجد وصف"}</td>
-                <td>
-                    {/* --- هذا هو التعديل المطلوب: تحويل العدد إلى رابط --- */}
-                    <Link to={`/admin/courses?programId=${program.academicProgramId}`} className="btn btn-link p-0">
-                        {courseCounts[program.academicProgramId] ?? '...'}
-                    </Link>
-                </td>
-                <td>{studentCounts[program.academicProgramId] ?? '...'}</td>
-                <td>
-                    <Button variant="info" size="sm" className="ml-2" onClick={() => handleShowEditModal(program)}><i className="fas fa-edit"></i> تعديل</Button>
-                    <Button variant="danger" size="sm" onClick={() => handleDeleteProgram(program.academicProgramId)}><i className="fas fa-trash"></i> حذف</Button>
-                </td>
-            </tr>
-        ));
     };
 
     return (
@@ -118,54 +126,115 @@ function ProgramManagement() {
                         <Card className="str-table-with-hover">
                             <Card.Header>
                                 <div className="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <Card.Title as="h4">إدارة البرامج الأكاديمية</Card.Title>
-                                        <p className="card-category">عرض وإضافة وتعديل البرامج الأكاديمية في النظام</p>
-                                    </div>
-                                    <div>
-                                        <Button variant="success" onClick={handleShowAddModal}><i className="fas fa-plus mr-1"></i> إضافة برنامج جديد</Button>
-                                    </div>
+                                    <Card.Title as="h4">إدارة البرامج الأكاديمية</Card.Title>
+                                    <Button variant="success" onClick={handleShowAddModal}>
+                                        <i className="fas fa-plus me-2"></i> إضافة برنامج جديد
+                                    </Button>
                                 </div>
+                                <p className="card-category">عرض وإضافة وتعديل البرامج وحالة التسجيل</p>
                             </Card.Header>
                             <Card.Body className="table-full-width table-responsive px-0">
                                 <Table className="table-hover">
                                     <thead>
                                         <tr>
-                                            <th className="border-0">#</th>
-                                            <th className="border-0">اسم البرنامج</th>
-                                            <th className="border-0">الوصف</th>
-                                            <th className="border-0">عدد الدورات</th>
-                                            <th className="border-0">عدد الطلاب</th>
-                                            <th className="border-0">إجراءات</th>
+                                            <th>#</th>
+                                            <th>اسم البرنامج</th>
+                                            <th>الوصف</th>
+                                            <th>حالة التسجيل</th>
+                                            <th>الدورات</th>
+                                            <th>الطلاب</th>
+                                            <th>إجراءات</th>
                                         </tr>
                                     </thead>
-                                    <tbody>{renderTableBody()}</tbody>
+                                    <tbody>
+                                        {loading ? (
+                                            <tr><td colSpan="7" className="text-center"><Spinner animation="border" /></td></tr>
+                                        ) : programs.length > 0 ? (
+                                            programs.map((program) => (
+                                                <tr key={program.academicProgramId}>
+                                                    <td>{program.academicProgramId}</td>
+                                                    <td>{program.name}</td>
+                                                    <td>{program.description || "-"}</td>
+                                                    <td>
+                                                        <Badge bg={program.isRegistrationOpen ? "success" : "danger"}>
+                                                            {program.isRegistrationOpen ? "مفتوح" : "مغلق"}
+                                                        </Badge>
+                                                    </td>
+                                                    <td><Link to={`/admin/courses?programId=${program.academicProgramId}`}>{courseCounts[program.academicProgramId] ?? '...'}</Link></td>
+                                                    <td>{studentCounts[program.academicProgramId] ?? '...'}</td>
+                                                    <td>
+                                                        <Button variant={program.isRegistrationOpen ? "warning" : "success"} size="sm" onClick={() => handleToggleRegistration(program.academicProgramId)} className="me-1">
+                                                            <i className={program.isRegistrationOpen ? "fas fa-lock" : "fas fa-lock-open"}></i>
+                                                        </Button>
+                                                        <Button variant="info" size="sm" onClick={() => handleShowEditModal(program)} className="me-1">
+                                                            <i className="fas fa-edit"></i>
+                                                        </Button>
+                                                        <Button variant="danger" size="sm" onClick={() => handleDeleteProgram(program.academicProgramId)}>
+                                                            <i className="fas fa-trash"></i>
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr><td colSpan="7" className="text-center">لا توجد برامج لعرضها.</td></tr>
+                                        )}
+                                    </tbody>
                                 </Table>
                             </Card.Body>
                         </Card>
                     </Col>
                 </Row>
             </Container>
-            <Modal show={showAddModal} onHide={handleCloseAddModal} centered>
-                <Modal.Header closeButton><Modal.Title>إنشاء برنامج أكاديمي جديد</Modal.Title></Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group><Form.Label>اسم البرنامج <span className="text-danger">*</span></Form.Label><Form.Control type="text" name="name" value={newProgram.name} onChange={handleNewProgramInputChange} required /></Form.Group>
-                        <Form.Group><Form.Label>الوصف (اختياري)</Form.Label><Form.Control as="textarea" rows={3} name="description" value={newProgram.description} onChange={handleNewProgramInputChange} /></Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer><Button variant="secondary" onClick={handleCloseAddModal}>إلغاء</Button><Button variant="primary" onClick={handleAddFormSubmit}>حفظ البرنامج</Button></Modal.Footer>
-            </Modal>
-            {editingProgram && (
-                <Modal show={showEditModal} onHide={handleCloseEditModal} centered>
-                    <Modal.Header closeButton><Modal.Title>تعديل برنامج: {editingProgram.name}</Modal.Title></Modal.Header>
+
+            {/* Add Program Modal */}
+            <Modal show={showAddModal} onHide={() => setShowAddModal(false)} centered>
+                <Modal.Header closeButton><Modal.Title>إنشاء برنامج جديد</Modal.Title></Modal.Header>
+                <Form onSubmit={handleAddFormSubmit}>
                     <Modal.Body>
-                        <Form>
-                            <Form.Group><Form.Label>اسم البرنامج <span className="text-danger">*</span></Form.Label><Form.Control type="text" name="name" value={editingProgram.name} onChange={handleEditProgramInputChange} required /></Form.Group>
-                            <Form.Group><Form.Label>الوصف (اختياري)</Form.Label><Form.Control as="textarea" rows={3} name="description" value={editingProgram.description} onChange={handleEditProgramInputChange} /></Form.Group>
-                        </Form>
+                        <Form.Group className="mb-3">
+                            <Form.Label>اسم البرنامج <span className="text-danger">*</span></Form.Label>
+                            <Form.Control type="text" name="name" value={newProgram.name} onChange={(e) => handleInputChange(e, setNewProgram)} required />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>الوصف</Form.Label>
+                            <Form.Control as="textarea" rows={3} name="description" value={newProgram.description} onChange={(e) => handleInputChange(e, setNewProgram)} />
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Check type="switch" id="isRegistrationOpen-add" label="فتح باب التسجيل لهذا البرنامج" name="isRegistrationOpen"
+                                checked={newProgram.isRegistrationOpen} onChange={(e) => handleInputChange(e, setNewProgram)} />
+                        </Form.Group>
                     </Modal.Body>
-                    <Modal.Footer><Button variant="secondary" onClick={handleCloseEditModal}>إلغاء</Button><Button variant="primary" onClick={handleEditFormSubmit}>حفظ التعديلات</Button></Modal.Footer>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowAddModal(false)}>إلغاء</Button>
+                        <Button variant="primary" type="submit">حفظ</Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
+
+            {/* Edit Program Modal */}
+            {editingProgram && (
+                <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered>
+                    <Modal.Header closeButton><Modal.Title>تعديل برنامج: {editingProgram.name}</Modal.Title></Modal.Header>
+                    <Form onSubmit={handleEditFormSubmit}>
+                        <Modal.Body>
+                            <Form.Group className="mb-3">
+                                <Form.Label>اسم البرنامج <span className="text-danger">*</span></Form.Label>
+                                <Form.Control type="text" name="name" value={editingProgram.name} onChange={(e) => handleInputChange(e, setEditingProgram)} required />
+                            </Form.Group>
+                            <Form.Group className="mb-3">
+                                <Form.Label>الوصف</Form.Label>
+                                <Form.Control as="textarea" rows={3} name="description" value={editingProgram.description} onChange={(e) => handleInputChange(e, setEditingProgram)} />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Check type="switch" id="isRegistrationOpen-edit" label="التسجيل مفتوح لهذا البرنامج" name="isRegistrationOpen"
+                                    checked={editingProgram.isRegistrationOpen} onChange={(e) => handleInputChange(e, setEditingProgram)} />
+                            </Form.Group>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={() => setShowEditModal(false)}>إلغاء</Button>
+                            <Button variant="primary" type="submit">حفظ التعديلات</Button>
+                        </Modal.Footer>
+                    </Form>
                 </Modal>
             )}
         </>

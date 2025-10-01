@@ -137,12 +137,11 @@ export const getQuizSubmissions = (quizId) => {
 };
 
 /**
- * @description يقوم بتفعيل اختبار معين (عملية لمرة واحدة).
+ * @description يقوم بتبديل حالة تفعيل اختبار معين (مفعل/معطل).
  * @param {number} quizId - معرّف الاختبار.
  * @endpoint POST /api/teacher/quizzes/{quizId}/toggle-status
  */
-export const activateQuiz = (quizId) => {
-    // نستخدم post() ولا نرسل أي بيانات في الـ body، تمامًا كما يتوقع الباك اند.
+export const toggleQuizStatus = (quizId) => {
     return apiClient.post(`/api/teacher/quizzes/${quizId}/toggle-status`);
 };
 
@@ -187,14 +186,9 @@ export const getMyPendingSuggestions = (courseId) => {
 };
 
 // ====================================================================
-// 8. ✨ Weekly Challenge Endpoint (New) ✨
+// 8. Weekly Challenge Endpoint (New)
 // ====================================================================
 
-/**
- * @description يجلب بيانات لوحة المتصدرين لتحدي الأسبوع لمساق معين (للمدرس).
- * @param {number} courseId - معرّف المساق.
- * @endpoint GET /api/teacher/challenge/course/{courseId}/leaderboard
- */
 export const getChallengeLeaderboardForTeacher = (courseId) => {
     return apiClient.get(`/api/teacher/challenge/course/${courseId}/leaderboard`);
 };

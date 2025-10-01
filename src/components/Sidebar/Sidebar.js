@@ -60,10 +60,10 @@ function Sidebar({ color, image, routes }) {
         <div className="logo d-flex align-items-center justify-content-start">
           <a href="#" className="simple-text logo-mini mx-1">
             <div className="logo-img">
-              <img src={require("assets/img/reactlogo.png")} alt="..." />
+              {/* <img src={require("assets/img/reactlogo.png")} alt="..." /> */}
             </div>
           </a>
-          <a className="simple-text" href="#">Smart School</a>
+          <a className="simple-text" href="#" style={{ color: 'skyblue', textDecoration: 'none', fontSize: '25px', width: '100%' }}>smart school</a>
         </div>
         <Nav as="ul">
           {routes.map((prop) => {
@@ -80,7 +80,7 @@ function Sidebar({ color, image, routes }) {
                     <p>{prop.name} <b className={open[prop.path] ? "caret-down" : "caret"}></b></p>
                   </NavLink>
                   <Collapse in={open[prop.path]}>
-                     <div>
+                    <div>
                       <Nav as="ul" className="flex-column">
                         {prop.children.map((child) => (
                           <li className={activeRoute(child.layout + child.path)} key={child.path}>
@@ -96,7 +96,7 @@ function Sidebar({ color, image, routes }) {
                         ))}
                       </Nav>
                     </div>
-                   </Collapse>
+                  </Collapse>
                 </li>
               );
             }

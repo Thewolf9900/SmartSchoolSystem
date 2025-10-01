@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Modal, Form, Button, Tabs, Tab, Popover, OverlayTrigger, Spinner } from "react-bootstrap";
 import { toast } from 'react-toastify';
 import { chatBackgrounds, chatColorSchemes, getDynamicChatStyles } from "themes/chatThemes";
-import { getMyConversations, getConversationDetails, createConversation, postMessage, deleteConversation } from "services/public/chatService";
+import { getMyConversations, getConversationDetails, createConversation, postMessage, deleteConversation } from "services/shared/chatService";
 
 const initialWelcomeMessage = {
     id: 'initial_0',

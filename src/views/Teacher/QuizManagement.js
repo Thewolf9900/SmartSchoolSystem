@@ -5,7 +5,7 @@ import {
     Container, Row, Col, Card, Button, Modal, Form, Spinner,
     ListGroup, Breadcrumb, Badge, Image, Table, Alert
 } from 'react-bootstrap';
-import { getQuizDetails, addQuestionToQuiz, deleteQuizQuestion, getQuizSubmissions, activateQuiz } from 'services/teacher/teacherService';
+import { getQuizDetails, addQuestionToQuiz, deleteQuizQuestion, getQuizSubmissions, toggleQuizStatus } from 'services/teacher/teacherService'; // 1. تم تعديل الاستيراد
 
 function QuizManagement() {
     const { quizId } = useParams();
@@ -13,7 +13,7 @@ function QuizManagement() {
     const [quizDetails, setQuizDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isActivating, setIsActivating] = useState(false);
+    const [isSubmittingToggle, setIsSubmittingToggle] = useState(false); // تم تغيير الاسم لتجنب الالتباس
     const [showAddQuestionModal, setShowAddQuestionModal] = useState(false);
     const [showSubmissionsModal, setShowSubmissionsModal] = useState(false);
     const initialNewQuestionState = { text: '', image: null, questionType: 'MultipleChoice', options: [{ text: '', isCorrect: true }, { text: '', isCorrect: false }] };
@@ -43,20 +43,24 @@ function QuizManagement() {
         fetchQuizData();
     }, [quizId]);
 
-    const handleActivateQuiz = async () => {
-        if (quizDetails.questions.length === 0) {
+     const handleToggleQuizStatus = async () => {
+        if (quizDetails.questions.length === 0 && !quizDetails.isEnabled) {
             return toast.warn("لا يمكن تفعيل اختبار لا يحتوي على أسئلة.");
         }
-        if (window.confirm("هل أنت متأكد من تفعيل الاختبار؟ لن تتمكن من تعديله أو حذف الأسئلة بعد التفعيل.")) {
-            setIsActivating(true);
+        const confirmMessage = quizDetails.isEnabled
+            ? "هل أنت متأكد من تعطيل الاختبار؟"
+            : "هل أنت متأكد من تفعيل الاختبار؟ لن تتمكن من تعديله أو حذف الأسئلة بعد التفعيل.";
+
+        if (window.confirm(confirmMessage)) {
+            setIsSubmittingToggle(true);
             try {
-                await activateQuiz(quizId);
-                toast.success("تم تفعيل الاختبار بنجاح.");
-                fetchQuizData();
+                const response = await toggleQuizStatus(quizId);  
+                toast.success(response.data.message);
+                fetchQuizData();  
             } catch (err) {
-                toast.error(err.response?.data?.message || "فشل في تفعيل الاختبار.");
+                toast.error(err.response?.data?.message || "فشل في تبديل حالة الاختبار.");
             } finally {
-                setIsActivating(false);
+                setIsSubmittingToggle(false);
             }
         }
     };
@@ -138,13 +142,15 @@ function QuizManagement() {
     };
 
     const handleShowImage = (imageUrl) => {
-        const fullUrl = `${process.env.REACT_APP_API_BASE_URL}/${imageUrl}`;
+        const fullUrl = `${imageUrl}`;
         setImageToShow(fullUrl);
         setShowImageModal(true);
     };
 
     if (loading) return <div className="text-center py-5"><Spinner animation="border" /></div>;
     if (error) return <Container><Alert variant="danger" className="mt-4">{error}</Alert></Container>;
+
+    const isQuizEnabled = quizDetails?.isEnabled;  
 
     return (
         <>
@@ -171,22 +177,21 @@ function QuizManagement() {
                         <Row className="align-items-center">
                             <Col><Card.Title as="h5">الأسئلة ({quizDetails?.questions?.length || 0})</Card.Title></Col>
                             <Col xs="auto" className="d-flex align-items-center">
-                                {quizDetails?.isEnabled ? (
-                                    <Badge bg="success" className="p-2">
-                                        <i className="fas fa-check-circle me-1"></i> الاختبار مفعّل
-                                    </Badge>
-                                ) : (
-                                    <Button
-                                        variant="warning"
-                                        size="sm"
-                                        onClick={handleActivateQuiz}
-                                        disabled={isActivating}
-                                        title="بعد التفعيل، لن تتمكن من تعديل الاختبار"
-                                    >
-                                        {isActivating ? <Spinner size="sm" /> : <><i className="fas fa-power-off me-1"></i> تفعيل الاختبار</>}
-                                    </Button>
-                                )}
-                                <Button variant="success" size="sm" className="ms-3" onClick={() => setShowAddQuestionModal(true)} disabled={quizDetails?.isEnabled}>
+                                {/* 4. عرض شارة الحالة وزر تبديل الحالة */}
+                                <Badge bg={isQuizEnabled ? "success" : "secondary"} className="p-2 me-2">
+                                    <i className={`fas ${isQuizEnabled ? "fa-check-circle" : "fa-ban"} me-1`}></i>
+                                    {isQuizEnabled ? "الاختبار مفعّل" : "الاختبار معطّل"}
+                                </Badge>
+                                <Button
+                                    variant={isQuizEnabled ? "warning" : "success"}
+                                    size="sm"
+                                    onClick={handleToggleQuizStatus} // استخدام الدالة الجديدة
+                                    disabled={isSubmittingToggle || (quizDetails.questions.length === 0 && !isQuizEnabled)}
+                                    title={isQuizEnabled ? "تعطيل الاختبار للسماح بالتعديل" : "تفعيل الاختبار ليتمكن الطلاب من حله"}
+                                >
+                                    {isSubmittingToggle ? <Spinner as="span" size="sm" /> : <><i className={`fas ${isQuizEnabled ? "fa-lock" : "fa-lock-open"} me-1`}></i> {isQuizEnabled ? "تعطيل الاختبار" : "تفعيل الاختبار"}</>}
+                                </Button>
+                                <Button variant="success" size="sm" className="ms-3" onClick={() => setShowAddQuestionModal(true)} disabled={isQuizEnabled}>
                                     <i className="fas fa-plus" /> إضافة سؤال
                                 </Button>
                                 <Button variant="outline-info" size="sm" className="ms-2" onClick={handleShowSubmissions}>
@@ -206,11 +211,11 @@ function QuizManagement() {
                                         </div>
                                         <div>
                                             {q.imageUrl && <Button variant="light" size="sm" className="text-info mx-1" onClick={() => handleShowImage(q.imageUrl)} title="عرض الصورة"><i className="fas fa-image" /></Button>}
-                                            <Button variant="light" size="sm" className="text-danger" onClick={() => handleDeleteQuestion(q.lectureQuizQuestionId)} disabled={quizDetails?.isEnabled} title={quizDetails?.isEnabled ? 'لا يمكن الحذف بعد التفعيل' : 'حذف السؤال'}><i className="fas fa-trash" /></Button>
+                                            <Button variant="light" size="sm" className="text-danger" onClick={() => handleDeleteQuestion(q.lectureQuizQuestionId)} disabled={isQuizEnabled} title={isQuizEnabled ? 'لا يمكن الحذف بعد التفعيل' : 'حذف السؤال'}><i className="fas fa-trash" /></Button>
                                         </div>
                                     </Card.Header>
                                     <Card.Body>
-                                        {q.imageUrl && <Image src={`${process.env.REACT_APP_API_BASE_URL}/${q.imageUrl}`} thumbnail style={{ maxHeight: '150px' }} className="mb-3" />}
+                                        {q.imageUrl && <Image src={`${q.imageUrl}`} thumbnail style={{ maxHeight: '150px' }} className="mb-3" />}
                                         <ListGroup variant="flush">
                                             {q.options.map(opt => (
                                                 <ListGroup.Item

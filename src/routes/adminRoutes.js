@@ -1,7 +1,3 @@
-// src/routes/adminRoutes.js
-// هذا الملف يحتوي الآن فقط على المسارات الخاصة بواجهة المدير
-
-// تم تحديث جميع مسارات الاستيراد لتشير إلى المجلد الجديد 'views/admin'
 import Dashboard from "../views/Admin/Dashboard";
 import UserManagement from "../views/Admin/UserManagement.js";
 import ProgramManagement from "../views/Admin/ProgramManagement.js";
@@ -15,8 +11,9 @@ import CurriculumManagement from "../views/Admin/CurriculumManagement.js";
 import GraduationManagement from "../views/Admin/GraduationManagement.js";
 import ArchivingManagement from "../views/Admin/ArchivingManagement.js";
 import UserProfile from "../views/Admin/UserProfile.js";
+// 1. استيراد المكون الجديد
+import RegistrationManagement from "../views/Admin/RegistrationManagement.js";
 
-// تم تغيير اسم المصفوفة ليعكس محتواها بشكل أفضل
 const adminRoutes = [
   {
     path: "/dashboard",
@@ -74,6 +71,14 @@ const adminRoutes = [
     path: "/student-management",
     layout: "/admin",
     children: [
+      // 2. إضافة المسار الجديد هنا
+      {
+        path: "/registrations",
+        name: "طلبات التسجيل",
+        icon: "nc-icon nc-badge", // أيقونة مناسبة
+        component: RegistrationManagement,
+        layout: "/admin",
+      },
       {
         path: "/students",
         name: "دليل الطلاب",
@@ -84,7 +89,7 @@ const adminRoutes = [
       {
         path: "/enrollments",
         name: "تسجيل البرامج",
-        icon: "nc-icon nc-badge",
+        icon: "nc-icon nc-single-copy-04",  
         component: EnrollmentManagement,
         layout: "/admin",
       },
@@ -135,4 +140,4 @@ const adminRoutes = [
   },
 ];
 
- export default adminRoutes;
+export default adminRoutes;

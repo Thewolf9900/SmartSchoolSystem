@@ -1,4 +1,3 @@
-
 .option-card {
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -18,4 +17,68 @@
     border-color: #0056b3;
     transform: translateY(-5px);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+.material-video-item {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.material-video-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* حاوية التحميل للحفاظ على الأبعاد */
+.video-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    /* يحافظ على نسبة 16:9 */
+    background-color: #e9ecef;
+    border-radius: 8px;
+}
+
+.video-placeholder .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* حاوية الفيديو الرئيسية للحفاظ على الأبعاد */
+.video-responsive-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    /* يحافظ على نسبة 16:9 (9 / 16 = 0.5625) */
+    background-color: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* عنصر الفيديو نفسه ليمتد على الحاوية */
+.video-responsive-wrapper .video-element {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+/* Placeholder for loading video */
+.video-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: #e9ecef;
+    border-radius: 8px;
+}
+
+.material-video-item .list-group-item {
+    padding: 0;
+    border: none;
 }

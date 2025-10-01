@@ -5,7 +5,7 @@ import { getQuizForLecture, submitQuiz } from 'services/student/studentService';
 import { toast } from 'react-toastify';
 
 function TakeQuiz() {
-    const { quizId } = useParams();
+    const { lectureId } = useParams();
     const history = useHistory();
 
     const [quiz, setQuiz] = useState(null);
@@ -21,7 +21,7 @@ function TakeQuiz() {
             setError(null);
             try {
                 // لاحظ أننا نستخدم quizId من الرابط هنا، وهو في الواقع lectureId
-                const response = await getQuizForLecture(quizId);
+                const response = await getQuizForLecture(lectureId);
                 setQuiz(response.data);
             } catch (err) {
                 const errorMessage = err.response?.data?.message || "فشل في تحميل الاختبار. قد تكون قد قمت بتقديمه بالفعل.";
@@ -32,7 +32,7 @@ function TakeQuiz() {
             }
         };
         fetchQuiz();
-    }, [quizId]);
+    }, [lectureId]);
 
     const handleSelectOption = (questionId, optionId) => {
         setAnswers(prev => ({ ...prev, [questionId]: optionId }));
@@ -70,14 +70,11 @@ function TakeQuiz() {
                 const response = await submitQuiz(quiz.lectureQuizId, formattedAnswers);
                 toast.success("تم تسليم الاختبار بنجاح! جارٍ عرض نتيجتك...");
 
-                // --- ✨ هذا هو الكود الجديد والمعدل ---
-                // نستخرج submissionId من الاستجابة ونوجه الطالب إلى المسار الديناميكي الصحيح
-                const { submissionId } = response.data;
+                 const { submissionId } = response.data;
                 if (submissionId) {
                     history.push(`/student/quiz-result/${submissionId}`);
                 } else {
-                    // في حالة عدم وجود submissionId لسبب ما، يتم توجيه الطالب إلى صفحة عامة
-                    toast.error("حدث خطأ أثناء الحصول على معرّف النتيجة.");
+                     toast.error("حدث خطأ أثناء الحصول على معرّف النتيجة.");
                     history.push('/student/my-classrooms');
                 }
 
@@ -136,7 +133,7 @@ function TakeQuiz() {
                             {currentQuestion.imageUrl && (
                                 <div className="text-center mb-4">
                                     <img
-                                        src={`${process.env.REACT_APP_API_BASE_URL}/${currentQuestion.imageUrl}`}
+                                        src={`${currentQuestion.imageUrl}`}
                                         alt={`Question ${currentQuestion.lectureQuizQuestionId}`}
                                         style={{ maxWidth: '100%', maxHeight: '250px', borderRadius: '8px', border: '1px solid #eee' }}
                                     />

@@ -35,17 +35,17 @@ export const getCourseReferenceMaterials = (courseId) => {
     return apiClient.get(`/api/student/courses/${courseId}/materials`);
 };
 
-/**
- * @description يقوم ببدء عملية تحميل ملف مادة تعليمية معينة.
- * @param {number} materialId - معرّف المادة.
- * @endpoint GET /api/student/materials/{materialId}/download
- * @returns {Promise<AxiosResponse<Blob>>} - A promise that resolves with the file blob.
- */
-export const downloadMaterial = (materialId) => {
-    return apiClient.get(`/api/student/materials/${materialId}/download`, {
-        responseType: 'blob', // Important for handling file downloads
-    });
-};
+// /**
+//  * @description يقوم ببدء عملية تحميل ملف مادة تعليمية معينة.
+//  * @param {number} materialId - معرّف المادة.
+//  * @endpoint GET /api/student/materials/{materialId}/download
+//  * @returns {Promise<AxiosResponse<Blob>>} - A promise that resolves with the file blob.
+//  */
+// export const downloadMaterial = (materialId) => {
+//     return apiClient.get(`/api/student/materials/${materialId}/download`, {
+//         responseType: 'blob', // Important for handling file downloads
+//     });
+// };
 
 
 

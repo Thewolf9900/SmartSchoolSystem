@@ -112,8 +112,7 @@ function AdminNavbar({ routes, brandText, onColorSwitcherToggle }) {
         </Container>
       </Navbar>
 
-      {/* ✨ 3. عرض المكون الجديد وتمرير الخصائص اللازمة له */}
-      <ChatModal show={showChatModal} onHide={handleCloseChatModal} />
+       <ChatModal show={showChatModal} onHide={handleCloseChatModal} />
     </>
   );
 }

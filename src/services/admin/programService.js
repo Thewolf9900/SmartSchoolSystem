@@ -58,3 +58,13 @@ export const getCoursesForProgram = (programId) => {
 export const getStudentsForProgram = (programId) => {
     return apiClient.get(`${BASE_URL}/${programId}/students`);
 };
+
+
+/**
+ * تبديل حالة التسجيل (مفتوح/مغلق) لبرنامج معين.
+ * POST /api/admin/programs/{id}/toggle-registration
+ * @param {number} programId - معرف البرنامج.
+ */
+export const toggleProgramRegistration = (programId) => {
+    return apiClient.post(`${BASE_URL}/${programId}/toggle-registration`);
+};

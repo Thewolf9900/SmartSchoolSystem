@@ -6,7 +6,7 @@ import QuizResult from "views/Student/QuizResult.js";
 import Announcements from "views/Student/Announcements.js";
 import MyProfile from "../views/shared/MyProfile.js";
 import WeeklyChallengePage from "../views/Student/WeeklyChallengePage.js";
- import TakeChallengePage from "../views/Student/TakeChallengePage.js";
+import TakeChallengePage from "../views/Student/TakeChallengePage.js";
 import ChallengeResultPage from "../views/Student/ChallengeResultPage.js";
 
 
@@ -41,13 +41,13 @@ const studentRoutes = [
         layout: "/student",
     },
     {
-        path: "/weekly-challenge", 
+        path: "/weekly-challenge",
         name: "تحدي الأسبوع",
         icon: "fas fa-trophy text-warning",
         component: WeeklyChallengePage,
         layout: "/student",
     },
-  
+
 
     // --- المسارات المخفية ---
     {
@@ -56,23 +56,22 @@ const studentRoutes = [
         layout: "/student",
     },
     {
-        path: "/quiz/:quizId",
+        path: "/take-quiz/:lectureId", // المسار لجلب الاختبار بناءً على معرف المحاضرة
         component: TakeQuiz,
         layout: "/student",
     },
     {
-        path: "/quiz-result/:submissionId",
+        path: "/quiz-result/:submissionId", // ✨ التأكيد على استخدام submissionId هنا
         component: QuizResult,
         layout: "/student",
     },
-    // --- ✨ 2. إضافة المسارات المخفية الجديدة للتحدي ---
     {
-        path: "/challenge/take/:courseId", // صفحة إجراء التحدي
+        path: "/challenge/take/:courseId",
         component: TakeChallengePage,
         layout: "/student",
     },
     {
-        path: "/challenge/result/:courseId", // صفحة عرض نتيجة التحدي
+        path: "/challenge/result/:courseId",
         component: ChallengeResultPage,
         layout: "/student",
     },

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Button, Form, Spinner, Alert } from "react-bootstrap";
 import { toast } from "react-toastify";
-import { requestPasswordReset, confirmPasswordReset } from "services/public/authService";
+import { requestPasswordReset, confirmPasswordReset } from "services/shared/authService";
 
 function ResetPasswordModal({ show, onHide }) {
     const [step, setStep] = useState(1);

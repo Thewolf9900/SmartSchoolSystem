@@ -124,7 +124,7 @@ function QuizResult() {
                                             {review.imageUrl && (
                                                 <div className="text-center my-3">
                                                     <img
-                                                        src={`${process.env.REACT_APP_API_BASE_URL}/${review.imageUrl}`}
+                                                        src={`${review.imageUrl}`}
                                                         alt={`Question Illustration`}
                                                         style={{ maxWidth: '100%', maxHeight: '250px', borderRadius: '8px', border: '1px solid #eee' }}
                                                     />

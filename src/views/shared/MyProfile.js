@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Button, Form, Spinner, Alert, ListGroup } from "react-bootstrap";
 import { toast } from 'react-toastify';
-import { getMyProfile, changeMyPassword } from "services/public/authService";
+import { getMyProfile, changeMyPassword } from "services/shared/authService";
 
 function MyProfile() {
     const [profile, setProfile] = useState(null);
@@ -29,7 +29,7 @@ function MyProfile() {
     const handlePasswordChange = (e) => {
         const { name, value } = e.target;
         setPasswords(prev => ({ ...prev, [name]: value }));
-        if (passwordError) setPasswordError(''); 
+        if (passwordError) setPasswordError('');
     };
 
     const handleSubmitPassword = async (e) => {
@@ -96,7 +96,7 @@ function MyProfile() {
                                     <span className="text-muted">البريد الإلكتروني</span>
                                     <strong>{profile.email}</strong>
                                 </ListGroup.Item>
-                                
+
                             </ListGroup>
                         </Card.Body>
                     </Card>

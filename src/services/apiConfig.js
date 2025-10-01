@@ -1,20 +1,28 @@
 import axios from "axios";
 
-// --- 1. العميل الأساسي (يبقى كما هو) ---
+
+const baseURL = process.env.REACT_APP_API_BASE_URL;
+
 const apiClient = axios.create({
-    baseURL: process.env.REACT_APP_API_BASE_URL,
+    baseURL: baseURL,
     headers: {
         "Content-Type": "application/json",
     },
 });
 
-// إضافة التوكن لكل الطلبات الصادرة
 apiClient.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
-        if (token) {
+        const isPublicRoute = config.url.includes("/api/public/");
+
+        if (token && !isPublicRoute) {
             config.headers["Authorization"] = `Bearer ${token}`;
         }
+
+        if (config.data instanceof FormData) {
+            delete config.headers["Content-Type"];
+        }
+
         return config;
     },
     (error) => {
@@ -22,24 +30,17 @@ apiClient.interceptors.request.use(
     }
 );
 
-
-// --- 2. الدالة الجديدة لإضافة المعترضات الذكية ---
-// هذه الدالة تقبل نسخة من Axios ودالة callback لإعادة جلب البيانات
 export const setupResponseInterceptor = (axiosInstance, refetchCallback) => {
-
-    // أولاً، قم بإزالة أي معترضات قديمة لتجنب التكرار
     if (axiosInstance.interceptors.response.handlers.length > 0) {
         axiosInstance.interceptors.response.eject(0);
     }
 
-    // إضافة المعترض الجديد
     const interceptor = axiosInstance.interceptors.response.use(
         (response) => response,
         (error) => {
             const { status } = error.response || {};
             if (status === 404 || status === 403) {
                 console.log(`Interceptor detected status ${status}. Triggering refetch.`);
-                // استدعاء الدالة التي تم تمريرها
                 if (refetchCallback) {
                     refetchCallback();
                 }
@@ -48,11 +49,9 @@ export const setupResponseInterceptor = (axiosInstance, refetchCallback) => {
         }
     );
 
-    // إرجاع دالة "تنظيف" لإزالة المعترض عند الحاجة
     return () => {
         axiosInstance.interceptors.response.eject(interceptor);
     };
 };
-
 
 export default apiClient;

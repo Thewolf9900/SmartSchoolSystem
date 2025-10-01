@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Button, Form, Spinner, Alert } from "react-bootstrap";
-import { findEmailByNationalId } from "services/public/authService";
+import { findEmailByNationalId } from "services/shared/authService";
 
 function FindEmailModal({ show, onHide }) {
     const [nationalId, setNationalId] = useState('');
