@@ -146,76 +146,151 @@ function EnrollmentManagement() {
         <>
             <Container fluid>
                 <Row>
-                    {/* اللوح الأيسر: قائمة البرامج */}
-                    <Col md={4}>
-                        <Card className="h-100">
-                            <Card.Header>
-                                <Card.Title as="h4">1. اختر برنامجًا</Card.Title>
-                                <InputGroup><FormControl placeholder="ابحث..." value={programSearch} onChange={e => setProgramSearch(e.target.value)} /></InputGroup>
+                    <Col md="12">
+                        <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: '15px' }}>
+                            <Card.Header className="bg-white p-4 border-0" style={{ borderRadius: '15px 15px 0 0' }}>
+                                <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+                                    <div>
+                                        <h4 className="font-weight-bold mb-1" style={{ color: '#2c3e50' }}>تسجيل البرامج</h4>
+                                        <p className="text-muted mb-0 small">إدارة التحاق الطلاب بالبرامج الأكاديمية</p>
+                                    </div>
+                                    <div className="mt-3 mt-md-0">
+                                        {/* Placeholder for future actions if needed */}
+                                    </div>
+                                </div>
                             </Card.Header>
-                            <Card.Body className="p-0" style={{ overflowY: 'auto' }}>
-                                {loadingPrograms ? <div className="text-center p-3"><Spinner /></div> :
-                                    <ListGroup variant="flush">
-                                        {filteredPrograms.map(p => (
-                                            <ListGroup.Item key={p.academicProgramId} action active={selectedProgram?.academicProgramId === p.academicProgramId} onClick={() => handleProgramSelect(p)} className="d-flex justify-content-between align-items-center">
-                                                {p.name}
-                                                <span className="badge bg-primary rounded-pill">{p.studentCount}</span>
-                                            </ListGroup.Item>
-                                        ))}
-                                    </ListGroup>
-                                }
-                            </Card.Body>
-                        </Card>
-                    </Col>
-
-                    {/* اللوح الأيمن: إدارة الطلاب */}
-                    <Col md={8}>
-                        <Card className="h-100">
-                            <Card.Header>
-                                <Card.Title as="h4">2. إدارة الطلاب</Card.Title>
-                                <p className="card-category">
-                                    {selectedProgram ? `في برنامج: ${selectedProgram.name}` : 'يرجى اختيار برنامج للبدء'}
-                                </p>
-                            </Card.Header>
-                            <Card.Body>
+                            <Card.Body className="p-4 bg-light">
                                 <Row>
-                                    {/* عمود الطلاب المتاحون */}
-                                    <Col md={6} style={{ maxHeight: '65vh', display: 'flex', flexDirection: 'column' }}>
-                                        <h5><i className="fas fa-users text-success"></i> الطلاب المتاحون ({filteredUnassigned.length})</h5>
-                                        <InputGroup className="mb-2"><FormControl placeholder="ابحث..." value={unassignedSearch} onChange={e => setUnassignedSearch(e.target.value)} /></InputGroup>
-                                        <div style={{ flex: 1, overflowY: 'auto' }}>
-                                            {loadingUnassigned ? <div className="text-center p-3"><Spinner /></div> :
-                                                <ListGroup variant="flush">
-                                                    {filteredUnassigned.map(student => (
-                                                        <ListGroup.Item key={student.id} className="d-flex justify-content-between align-items-center">
-                                                            <span>{student.fullName}</span>
-                                                            <Button variant="success" size="sm" onClick={() => handleEnroll(student)} disabled={!selectedProgram}>
-                                                                إلحاق <i className="fas fa-arrow-right"></i>
-                                                            </Button>
-                                                        </ListGroup.Item>
-                                                    ))}
-                                                </ListGroup>
-                                            }
-                                        </div>
-                                    </Col>
-                                    {/* عمود الطلاب الملتحقون */}
-                                    <Col md={6} style={{ maxHeight: '65vh', display: 'flex', flexDirection: 'column' }}>
-                                        <h5><i className="fas fa-user-check text-info"></i> الطلاب الملتحقون ({filteredEnrolled.length})</h5>
-                                        <InputGroup className="mb-2"><FormControl placeholder="ابحث..." value={enrolledSearch} onChange={e => setEnrolledSearch(e.target.value)} /></InputGroup>
-                                        <div style={{ flex: 1, overflowY: 'auto' }}>
-                                            {!selectedProgram ? <div className="text-center text-muted mt-4">اختر برنامجًا لعرض الطلاب</div> :
-                                                loadingEnrolled ? <div className="text-center p-4"><Spinner /></div> :
+                                    {/* Left Pane: Programs List */}
+                                    <Col md={4} className="mb-4 mb-md-0">
+                                        <div className="bg-white p-3 rounded shadow-sm h-100 border">
+                                            <h6 className="font-weight-bold mb-3 text-dark border-bottom pb-2">1. اختر برنامجًا</h6>
+                                            <div className="position-relative mb-3">
+                                                <i className="fas fa-search position-absolute text-muted" style={{ top: '50%', right: '15px', transform: 'translateY(-50%)', zIndex: 10 }}></i>
+                                                <FormControl
+                                                    placeholder="ابحث عن برنامج..."
+                                                    value={programSearch}
+                                                    onChange={e => setProgramSearch(e.target.value)}
+                                                    className="rounded-pill border-0 bg-light pl-3 pr-5"
+                                                    style={{ height: '40px' }}
+                                                />
+                                            </div>
+
+                                            <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                                                {loadingPrograms ? <div className="text-center p-3"><Spinner animation="border" variant="primary" size="sm" /></div> :
                                                     <ListGroup variant="flush">
-                                                        {filteredEnrolled.map(student => (
-                                                            <ListGroup.Item key={student.id} className="d-flex justify-content-between align-items-center">
-                                                                <span>{student.fullName}</span>
-                                                                <Button variant="outline-danger" size="sm" onClick={() => handleShowConfirmModal(student)}>
-                                                                    <i className="fas fa-arrow-left"></i> إلغاء
-                                                                </Button>
+                                                        {filteredPrograms.map(p => (
+                                                            <ListGroup.Item
+                                                                key={p.academicProgramId}
+                                                                action
+                                                                active={selectedProgram?.academicProgramId === p.academicProgramId}
+                                                                onClick={() => handleProgramSelect(p)}
+                                                                className={`d-flex justify-content-between align-items-center rounded mb-1 border-0 ${selectedProgram?.academicProgramId === p.academicProgramId ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-dark'}`}
+                                                                style={{ transition: 'all 0.2s' }}
+                                                            >
+                                                                <span className="font-weight-bold">{p.name}</span>
+                                                                <span className={`badge rounded-pill ${selectedProgram?.academicProgramId === p.academicProgramId ? 'bg-white text-primary' : 'bg-light text-muted'}`}>{p.studentCount}</span>
                                                             </ListGroup.Item>
                                                         ))}
                                                     </ListGroup>
-                                            }
+                                                }
+                                            </div>
+                                        </div>
+                                    </Col>
+
+                                    {/* Right Pane: Student Management */}
+                                    <Col md={8}>
+                                        <div className="bg-white p-3 rounded shadow-sm h-100 border">
+                                            <div className="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                                                <h6 className="font-weight-bold mb-0 text-dark">2. إدارة الطلاب</h6>
+                                                {selectedProgram && <span className="badge badge-primary rounded-pill px-3 py-2">{selectedProgram.name}</span>}
+                                            </div>
+
+                                            {!selectedProgram ? (
+                                                <div className="text-center text-muted py-5">
+                                                    <i className="fas fa-arrow-right fa-3x mb-3 text-muted opacity-25 d-none d-md-inline-block"></i>
+                                                    <p>يرجى اختيار برنامج من القائمة للبدء في إدارة الطلاب.</p>
+                                                </div>
+                                            ) : (
+                                                <Row>
+                                                    {/* Available Students */}
+                                                    <Col md={6} className="d-flex flex-column mb-3 mb-md-0" style={{ maxHeight: '600px' }}>
+                                                        <div className="mb-2 d-flex align-items-center justify-content-between">
+                                                            <span className="text-success font-weight-bold text-sm"><i className="fas fa-users mr-1"></i> متاح ({filteredUnassigned.length})</span>
+                                                        </div>
+                                                        <div className="position-relative mb-2">
+                                                            <FormControl
+                                                                placeholder="بحث طلاب..."
+                                                                value={unassignedSearch}
+                                                                onChange={e => setUnassignedSearch(e.target.value)}
+                                                                className="rounded-pill border-light bg-light"
+                                                                size="sm"
+                                                            />
+                                                        </div>
+                                                        <div className="flex-grow-1 border rounded bg-light p-2" style={{ overflowY: 'auto' }}>
+                                                            {loadingUnassigned ? <div className="text-center p-3"><Spinner animation="border" size="sm" /></div> :
+                                                                <ListGroup variant="flush">
+                                                                    {filteredUnassigned.map(student => (
+                                                                        <ListGroup.Item key={student.id} className="d-flex justify-content-between align-items-center bg-white rounded mb-1 shadow-sm border-0 p-2">
+                                                                            <span className="text-truncate small" style={{ maxWidth: '150px' }} title={student.fullName}>{student.fullName}</span>
+                                                                            <Button
+                                                                                variant="outline-success"
+                                                                                size="sm"
+                                                                                className="rounded-circle shadow-sm"
+                                                                                onClick={() => handleEnroll(student)}
+                                                                                disabled={!selectedProgram}
+                                                                                title="إلحاق"
+                                                                                style={{ width: '30px', height: '30px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                                            >
+                                                                                <i className="fas fa-plus"></i>
+                                                                            </Button>
+                                                                        </ListGroup.Item>
+                                                                    ))}
+                                                                    {filteredUnassigned.length === 0 && <div className="text-center text-muted small py-4">لا توجد نتائج</div>}
+                                                                </ListGroup>
+                                                            }
+                                                        </div>
+                                                    </Col>
+
+                                                    {/* Enrolled Students */}
+                                                    <Col md={6} className="d-flex flex-column" style={{ maxHeight: '600px' }}>
+                                                        <div className="mb-2 d-flex align-items-center justify-content-between">
+                                                            <span className="text-info font-weight-bold text-sm"><i className="fas fa-check-circle mr-1"></i> مسجل ({filteredEnrolled.length})</span>
+                                                        </div>
+                                                        <div className="position-relative mb-2">
+                                                            <FormControl
+                                                                placeholder="بحث مسجلين..."
+                                                                value={enrolledSearch}
+                                                                onChange={e => setEnrolledSearch(e.target.value)}
+                                                                className="rounded-pill border-light bg-light"
+                                                                size="sm"
+                                                            />
+                                                        </div>
+                                                        <div className="flex-grow-1 border rounded bg-light p-2" style={{ overflowY: 'auto' }}>
+                                                            {loadingEnrolled ? <div className="text-center p-3"><Spinner animation="border" size="sm" /></div> :
+                                                                <ListGroup variant="flush">
+                                                                    {filteredEnrolled.map(student => (
+                                                                        <ListGroup.Item key={student.id} className="d-flex justify-content-between align-items-center bg-white rounded mb-1 shadow-sm border-0 p-2">
+                                                                            <span className="text-truncate small" style={{ maxWidth: '150px' }} title={student.fullName}>{student.fullName}</span>
+                                                                            <Button
+                                                                                variant="outline-danger"
+                                                                                size="sm"
+                                                                                className="rounded-circle shadow-sm"
+                                                                                onClick={() => handleShowConfirmModal(student)}
+                                                                                title="إلغاء الإلحاق"
+                                                                                style={{ width: '30px', height: '30px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                                                            >
+                                                                                <i className="fas fa-times"></i>
+                                                                            </Button>
+                                                                        </ListGroup.Item>
+                                                                    ))}
+                                                                    {filteredEnrolled.length === 0 && <div className="text-center text-muted small py-4">لا توجد نتائج</div>}
+                                                                </ListGroup>
+                                                            }
+                                                        </div>
+                                                    </Col>
+                                                </Row>
+                                            )}
                                         </div>
                                     </Col>
                                 </Row>
@@ -227,31 +302,30 @@ function EnrollmentManagement() {
 
             {/* نافذة تأكيد الحذف */}
             <Modal show={showConfirmModal} onHide={handleCloseConfirmModal} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title className="text-danger">
-                        <i className="fas fa-exclamation-triangle me-2"></i> تأكيد إلغاء الإلحاق
+                <Modal.Header closeButton className="border-0 pb-0">
+                    <Modal.Title className="text-danger font-weight-bold">
+                        <i className="fas fa-exclamation-triangle mr-2"></i> تأكيد إلغاء الإلحاق
                     </Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <p>أنت على وشك إلغاء إلحاق الطالب التالي من البرنامج:</p>
+                <Modal.Body className="pt-0">
+                    <p className="text-muted mb-3">أنت على وشك إلغاء إلحاق الطالب التالي من البرنامج، هل أنت متأكد؟</p>
                     {studentToUnenroll && (
-                        <Card>
-                            <ListGroup variant="flush">
-                                <ListGroup.Item><strong>الاسم الكامل:</strong> {studentToUnenroll.fullName}</ListGroup.Item>
-                                <ListGroup.Item><strong> معرف الطالب  :</strong> {studentToUnenroll.id}</ListGroup.Item>
-                                <ListGroup.Item><strong>البريد الإلكتروني:</strong> {studentToUnenroll.email}</ListGroup.Item>
-                                <ListGroup.Item><strong>الرقم الوطني:</strong> {studentToUnenroll.nationalId}</ListGroup.Item>
-                            </ListGroup>
-                        </Card>
+                        <div className="bg-light p-3 rounded">
+                            <div className="d-flex align-items-center mb-2">
+                                <strong className="mr-2" style={{ minWidth: '100px' }}>الاسم الكامل:</strong> <span>{studentToUnenroll.fullName}</span>
+                            </div>
+                            <div className="d-flex align-items-center mb-2">
+                                <strong className="mr-2" style={{ minWidth: '100px' }}>البريد:</strong> <span className="text-muted small">{studentToUnenroll.email}</span>
+                            </div>
+                        </div>
                     )}
-                    <p className="mt-3"><strong>هل أنت متأكد من رغبتك في المتابعة؟</strong></p>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseConfirmModal}>
+                <Modal.Footer className="border-0">
+                    <Button variant="light" onClick={handleCloseConfirmModal} className="rounded-pill px-4">
                         تراجع
                     </Button>
-                    <Button variant="danger" onClick={handleConfirmUnenroll}>
-                        نعم، قم بالإلغاء
+                    <Button variant="danger" onClick={handleConfirmUnenroll} className="rounded-pill px-4 shadow-sm btn-fill">
+                        تأكيد الإلغاء
                     </Button>
                 </Modal.Footer>
             </Modal>

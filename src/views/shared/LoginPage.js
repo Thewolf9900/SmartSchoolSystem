@@ -157,7 +157,8 @@ function LoginPage() {
                                                 borderRadius: '12px',
                                                 height: '50px',
                                                 fontSize: '1.1rem',
-                                                transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+                                                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                                                color: '#FFFFFF'
                                             }}
                                             onMouseOver={(e) => {
                                                 e.currentTarget.style.transform = 'translateY(-2px)';

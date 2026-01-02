@@ -114,103 +114,139 @@ const UserProfile = () => {
     return (
         <>
             <Container fluid>
-                {/* Card 1: Personal Information */}
-                <Row>
-                    <Col md="12">
-                        <Card>
-                            <Card.Header>
-                                <Row className="align-items-center">
-                                    <Col>
-                                        <Card.Title as="h4">تعديل المعلومات الشخصية</Card.Title>
-                                    </Col>
-                                    <Col className="text-right">
-                                        {!isEditMode ? (
-                                            <Button variant="primary" onClick={() => setIsEditMode(true)}>
-                                                <i className="fas fa-edit mr-1"></i> تعديل
-                                            </Button>
-                                        ) : (
-                                            <>
-                                                <Button variant="secondary" onClick={handleCancelEdit} className="ml-2">إلغاء</Button>
-                                                <Button variant="success" onClick={handleSaveClick} disabled={submitting}>
-                                                    حفظ التغييرات
-                                                </Button>
-                                            </>
-                                        )}
-                                    </Col>
-                                </Row>
+                {/* Unified Card for Profile Management */}
+                <Row className="justify-content-center">
+                    <Col md="10" lg="8">
+                        <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: '15px' }}>
+                            <Card.Header className="bg-white p-4 border-0" style={{ borderRadius: '15px 15px 0 0' }}>
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h4 className="font-weight-bold mb-1" style={{ color: '#2c3e50' }}>الملف الشخصي</h4>
+                                        <p className="text-muted mb-0 small">إدارة معلوماتك الشخصية وكلمة المرور</p>
+                                    </div>
+                                    {!isEditMode && (
+                                        <Button
+                                            variant="primary"
+                                            className="rounded-pill btn-fill shadow-sm"
+                                            onClick={() => setIsEditMode(true)}
+                                        >
+                                            <i className="fas fa-edit mr-2"></i> تعديل المعلومات
+                                        </Button>
+                                    )}
+                                </div>
                             </Card.Header>
-                            <Card.Body>
+                            <Card.Body className="p-4">
+                                {/* Personal Information Section */}
+                                <h6 className="text-muted font-weight-bold mb-4 border-bottom pb-2">المعلومات الشخصية</h6>
                                 <Form onSubmit={(e) => e.preventDefault()}>
                                     <Row>
                                         <Col md={6}>
-                                            <Form.Group>
-                                                <label>الاسم الأول</label>
-                                                <Form.Control type="text" value={profile.firstName} onChange={e => setProfile({ ...profile, firstName: e.target.value })} readOnly={!isEditMode} />
+                                            <Form.Group className="mb-3">
+                                                <Form.Label className="small font-weight-bold text-muted">الاسم الأول</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    value={profile.firstName}
+                                                    onChange={e => setProfile({ ...profile, firstName: e.target.value })}
+                                                    readOnly={!isEditMode}
+                                                    className="rounded-pill border-0 shadow-sm custom-input"
+                                                    style={{ backgroundColor: isEditMode ? '#fff' : '#f8f9fa' }}
+                                                />
                                             </Form.Group>
                                         </Col>
                                         <Col md={6}>
-                                            <Form.Group>
-                                                <label>اسم العائلة</label>
-                                                <Form.Control type="text" value={profile.lastName} onChange={e => setProfile({ ...profile, lastName: e.target.value })} readOnly={!isEditMode} />
+                                            <Form.Group className="mb-3">
+                                                <Form.Label className="small font-weight-bold text-muted">اسم العائلة</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    value={profile.lastName}
+                                                    onChange={e => setProfile({ ...profile, lastName: e.target.value })}
+                                                    readOnly={!isEditMode}
+                                                    className="rounded-pill border-0 shadow-sm custom-input"
+                                                    style={{ backgroundColor: isEditMode ? '#fff' : '#f8f9fa' }}
+                                                />
                                             </Form.Group>
                                         </Col>
                                     </Row>
-                                    <Row className="mt-3">
+                                    <Row>
                                         <Col md={6}>
-                                            <Form.Group>
-                                                <label>البريد الإلكتروني</label>
-                                                <Form.Control type="email" value={profile.email} onChange={e => setProfile({ ...profile, email: e.target.value })} readOnly={!isEditMode} />
+                                            <Form.Group className="mb-3">
+                                                <Form.Label className="small font-weight-bold text-muted">البريد الإلكتروني</Form.Label>
+                                                <Form.Control
+                                                    type="email"
+                                                    value={profile.email}
+                                                    onChange={e => setProfile({ ...profile, email: e.target.value })}
+                                                    readOnly={!isEditMode}
+                                                    className="rounded-pill border-0 shadow-sm custom-input"
+                                                    style={{ backgroundColor: isEditMode ? '#fff' : '#f8f9fa' }}
+                                                />
                                             </Form.Group>
                                         </Col>
                                         <Col md={6}>
-                                            <Form.Group>
-                                                <label>الرقم الوطني</label>
-                                                <Form.Control type="text" placeholder={"ادخل الرقم الوطني الجديد"} onChange={e => setProfile({ ...profile, nationalId: e.target.value })} readOnly={!isEditMode} />
+                                            <Form.Group className="mb-3">
+                                                <Form.Label className="small font-weight-bold text-muted">الرقم الوطني</Form.Label>
+                                                <Form.Control
+                                                    type="password"
+                                                    placeholder={isEditMode ? "ادخل الرقم الوطني الجديد" : ""}
+                                                    value={profile.nationalId || ""}
+                                                    onChange={e => setProfile({ ...profile, nationalId: e.target.value })}
+                                                    readOnly={!isEditMode}
+                                                    className="rounded-pill border-0 shadow-sm custom-input"
+                                                    style={{ backgroundColor: isEditMode ? '#fff' : '#f8f9fa' }}
+                                                />
                                             </Form.Group>
                                         </Col>
                                     </Row>
-                                </Form>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
 
-                {/* Card 2: Change Password */}
-                <Row>
-                    <Col md="12">
-                        <Card>
-                            <Card.Header>
-                                <Card.Title as="h4">تغيير كلمة المرور</Card.Title>
-                            </Card.Header>
-                            <Card.Body>
+                                    {isEditMode && (
+                                        <div className="d-flex justify-content-end mt-3 mb-5">
+                                            <Button variant="secondary" onClick={handleCancelEdit} className="rounded-pill mr-2 px-4">إلغاء</Button>
+                                            <Button variant="success" onClick={handleSaveClick} disabled={submitting} className="rounded-pill btn-fill shadow-sm px-4">
+                                                <i className="fas fa-save mr-2"></i> حفظ التغييرات
+                                            </Button>
+                                        </div>
+                                    )}
+                                </Form>
+
+                                {/* Password Change Section */}
+                                <h6 className="text-muted font-weight-bold mb-4 mt-4 border-bottom pb-2">تغيير كلمة المرور</h6>
                                 <Form onSubmit={handleChangePassword}>
                                     <Row className="align-items-end">
                                         <Col md={5}>
-                                            <Form.Group>
-                                                <label>الرقم الوطني (للتأكيد)</label>
+                                            <Form.Group className="mb-3 mb-md-0">
+                                                <Form.Label className="small font-weight-bold text-muted">الرقم الوطني (للتأكيد)</Form.Label>
                                                 <Form.Control
                                                     type="password"
                                                     required
                                                     value={passwordData.nationalId}
                                                     onChange={e => setPasswordData({ ...passwordData, nationalId: e.target.value })}
-                                                    placeholder="أدخل رقمك الوطني الحالي"
+                                                    placeholder="أدخل الرقم الوطني الحالي"
+                                                    className="rounded-pill border-0 shadow-sm"
+                                                    style={{ height: '45px' }}
                                                 />
                                             </Form.Group>
                                         </Col>
                                         <Col md={5}>
-                                            <Form.Group>
-                                                <label>كلمة المرور الجديدة</label>
+                                            <Form.Group className="mb-3 mb-md-0">
+                                                <Form.Label className="small font-weight-bold text-muted">كلمة المرور الجديدة</Form.Label>
                                                 <Form.Control
                                                     type="password"
                                                     required
                                                     value={passwordData.newPassword}
                                                     onChange={e => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                                    placeholder="أدخل كلمة المرور الجديدة"
+                                                    placeholder="****"
+                                                    className="rounded-pill border-0 shadow-sm"
+                                                    style={{ height: '45px' }}
                                                 />
                                             </Form.Group>
                                         </Col>
                                         <Col md={2}>
-                                            <Button variant="primary" type="submit" disabled={submitting} className="w-100">
+                                            <Button
+                                                variant="info"
+                                                type="submit"
+                                                disabled={submitting}
+                                                className="w-100 rounded-pill btn-fill shadow-sm"
+                                                style={{ height: '45px' }}
+                                            >
                                                 {submitting ? <Spinner size="sm" /> : "تغيير"}
                                             </Button>
                                         </Col>

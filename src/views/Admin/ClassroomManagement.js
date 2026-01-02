@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
 import { useLocation } from "react-router-dom";
 
-import { Card, Table, Container, Row, Col, Button, Spinner, ButtonGroup, Form, Modal } from "react-bootstrap";
+import { Card, Table, Container, Row, Col, Button, Spinner, ButtonGroup, Form, Modal, Badge } from "react-bootstrap";
 
 // استيراد الخدمات المطلوبة
 import { getClassrooms, createClassroom, updateClassroom, deleteClassroom, assignTeacherToClassroom, unassignTeacherFromClassroom } from "services/admin/classroomService";
@@ -210,34 +210,101 @@ function ClassroomManagement() {
     const availableCoursesForEditModal = editModalProgramId ? courses.filter(c => c.academicProgramId === parseInt(editModalProgramId)) : [];
 
     const renderTableBody = () => {
-        if (loading) { return (<tr><td colSpan="6" className="text-center"><Spinner animation="border" /></td></tr>); }
-        if (filteredClassrooms.length === 0) { return (<tr><td colSpan="6" className="text-center">لا توجد فصول تطابق البحث.</td></tr>); }
+        if (loading) { return (<tr><td colSpan="6" className="text-center py-5"><Spinner animation="border" variant="primary" /></td></tr>); }
+        if (filteredClassrooms.length === 0) { return (<tr><td colSpan="6" className="text-center py-5"><div className="text-muted"><i className="fas fa-layer-group fa-2x mb-3 d-block"></i>لا توجد فصول تطابق البحث.</div></td></tr>); }
+
         return filteredClassrooms.map((c) => (
-            <tr key={c.classroomId}>
-                <td>{c.classroomId}</td>
-                <td>{c.name}</td>
-                <td>{c.courseName}</td>
-                <td>{c.teacherName || <span className="text-muted">لم يتم التعيين</span>}</td>
-                <td>{c.enrolledStudentsCount} / {c.capacity}</td>
-                <td>
-                    {/* ======== بداية التعديل: تلوين الأزرار ======== */}
+            <tr key={c.classroomId} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                <td className="align-middle pl-4 font-weight-bold text-muted">#{c.classroomId}</td>
+                <td className="align-middle"><span className="font-weight-bold text-dark">{c.name}</span></td>
+                <td className="align-middle text-muted">{c.courseName}</td>
+                <td className="align-middle">{c.teacherName || <Badge bg="secondary">لم يتم التعيين</Badge>}</td>
+                <td className="align-middle text-center"><Badge bg="info" className="px-3 py-1">{c.enrolledStudentsCount} / {c.capacity}</Badge></td>
+                <td className="text-right pr-4 align-middle">
                     <Button
-                        variant={c.teacherId ? "danger" : "primary"}
+                        variant={c.teacherId ? "outline-danger" : "outline-primary"}
                         size="sm"
-                        className="me-2"
+                        className="mx-1 rounded"
                         onClick={() => handleTeacherButtonClick(c)}
+                        title={c.teacherId ? "إلغاء تعيين المدرس" : "تعيين مدرس"}
+                        style={{ width: '35px', height: '35px', padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
                     >
                         <i className="fas fa-chalkboard-teacher"></i>
                     </Button>
-                    <Button variant="warning" size="sm" className="me-2" onClick={() => handleShowEditModal(c)}>
-                        <i className="fas fa-edit"></i>
+                    <Button
+                        variant="outline-warning"
+                        size="sm"
+                        className="mx-1 rounded"
+                        onClick={() => handleShowEditModal(c)}
+                        title="تعديل"
+                        style={{ width: '35px', height: '35px', padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                        <i className="fas fa-pen"></i>
                     </Button>
-                    <Button variant="danger" size="sm" onClick={() => handleDeleteClassroom(c.classroomId)}>
+                    <Button
+                        variant="outline-danger"
+                        size="sm"
+                        className="mx-1 rounded"
+                        onClick={() => handleDeleteClassroom(c.classroomId)}
+                        title="حذف"
+                        style={{ width: '35px', height: '35px', padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
                         <i className="fas fa-trash"></i>
                     </Button>
-                    {/* ======== نهاية التعديل ======== */}
                 </td>
             </tr>
+        ));
+    };
+
+    const renderMobileCards = () => {
+        if (loading) { return (<div className="text-center py-5"><Spinner animation="border" variant="primary" /></div>); }
+        if (filteredClassrooms.length === 0) { return (<div className="text-center py-5 text-muted">لا توجد فصول تطابق البحث.</div>); }
+
+        return filteredClassrooms.map((c) => (
+            <Card key={c.classroomId} className="mb-3 border shadow-sm">
+                <Card.Body className="p-3">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <div className="d-flex align-items-center">
+                            <div className="rounded-circle d-flex align-items-center justify-content-center mr-2" style={{ width: '40px', height: '40px', backgroundColor: '#e3f2fd', color: '#007bff' }}>
+                                <i className="fas fa-chalkboard"></i>
+                            </div>
+                            <div>
+                                <h6 className="font-weight-bold mb-0 text-dark">{c.name}</h6>
+                                <small className="text-muted">#{c.classroomId}</small>
+                            </div>
+                        </div>
+                        <Badge bg="info" className="px-2 py-1">{c.courseName}</Badge>
+                    </div>
+
+                    <div className="mb-3">
+                        <div className="d-flex justify-content-between border-bottom pb-2 mb-2">
+                            <span className="text-muted small">المدرس</span>
+                            <span>{c.teacherName || <Badge bg="secondary">لم يتم التعيين</Badge>}</span>
+                        </div>
+                        <div className="d-flex justify-content-between pb-2 mb-2">
+                            <span className="text-muted small">الطلاب / السعة</span>
+                            <span className="font-weight-bold text-dark">{c.enrolledStudentsCount} / {c.capacity}</span>
+                        </div>
+                    </div>
+
+                    <div className="d-flex justify-content-end border-top pt-2">
+                        <Button
+                            variant={c.teacherId ? "outline-danger" : "outline-primary"}
+                            size="sm"
+                            className="ml-2 rounded"
+                            onClick={() => handleTeacherButtonClick(c)}
+                        >
+                            <i className="fas fa-chalkboard-teacher mr-1"></i> {c.teacherId ? "إلغاء المدرس" : "تعيين مدرس"}
+                        </Button>
+                        <Button variant="outline-warning" size="sm" className="ml-2 rounded" onClick={() => handleShowEditModal(c)}>
+                            <i className="fas fa-pen mr-1"></i> تعديل
+                        </Button>
+                        <Button variant="outline-danger" size="sm" className="rounded" onClick={() => handleDeleteClassroom(c.classroomId)}>
+                            <i className="fas fa-trash mr-1"></i> حذف
+                        </Button>
+                    </div>
+                </Card.Body>
+            </Card>
         ));
     };
 
@@ -247,22 +314,71 @@ function ClassroomManagement() {
                 <Row>
                     <Col md="12">
                         <Card className="str-table-with-hover">
-                            <Card.Header>
-                                <Row className="align-items-center">
-                                    <Col md={8}><Card.Title as="h4">إدارة الفصول الدراسية</Card.Title><p className="card-category">عرض وإضافة وتعديل الفصول</p></Col>
-                                    <Col md={4} className="d-flex justify-content-end"><Button variant="success" onClick={handleShowAddModal}><i className="fas fa-plus mr-1"></i> إضافة فصل</Button></Col>
-                                </Row>
-                                <Row className="mt-3 align-items-end">
-                                    <Col md={4}><Form.Group><Form.Label>البرنامج</Form.Label><Form.Control as="select" value={selectedProgramId} onChange={(e) => { setSelectedProgramId(e.target.value); setSelectedCourseId(""); }}><option value="">-- الكل --</option>{programs.map(p => (<option key={p.academicProgramId} value={p.academicProgramId}>{p.name}</option>))}</Form.Control></Form.Group></Col>
-                                    <Col md={4}><Form.Group><Form.Label>الدورة</Form.Label><Form.Control as="select" value={selectedCourseId} onChange={(e) => setSelectedCourseId(e.target.value)}><option value="">-- الكل --</option>{availableCoursesForFilter.map(c => (<option key={c.courseId} value={c.courseId}>{c.name}</option>))}</Form.Control></Form.Group></Col>
-                                    <Col md={4}><ButtonGroup><Button variant={statusFilter === 'ACTIVE' ? 'primary' : 'outline-primary'} onClick={() => setStatusFilter("ACTIVE")}>النشطة</Button><Button variant={statusFilter === 'COMPLETED' ? 'primary' : 'outline-primary'} onClick={() => setStatusFilter("COMPLETED")}>المكتملة</Button><Button variant={statusFilter === 'ALL' ? 'primary' : 'outline-primary'} onClick={() => setStatusFilter("ALL")}>الكل</Button></ButtonGroup></Col>
+                            <Card.Header className="bg-white p-4 border-0" style={{ borderRadius: '15px 15px 0 0' }}>
+                                <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+                                    <div>
+                                        <h4 className="font-weight-bold mb-1" style={{ color: '#2c3e50' }}>إدارة الفصول الدراسية</h4>
+                                        <p className="text-muted mb-0 small">عرض وإضافة وتعديل جميع الفصول في النظام</p>
+                                    </div>
+                                    <div className="mt-3 mt-md-0 d-flex flex-column flex-md-row align-items-stretch align-items-md-center">
+                                        <Button variant="success" className="shadow-sm btn-fill rounded-pill px-4 py-2" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'auto', whiteSpace: 'nowrap' }} onClick={handleShowAddModal}>
+                                            <i className="fas fa-plus ml-2"></i> إضافة فصل
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <Row className="bg-light p-3 rounded mx-0 align-items-end">
+                                    <Col md={4} className="mb-3 mb-md-0">
+                                        <Form.Group className="mb-0">
+                                            <Form.Label className="small font-weight-bold text-muted">البرنامج</Form.Label>
+                                            <Form.Control as="select" value={selectedProgramId} onChange={(e) => { setSelectedProgramId(e.target.value); setSelectedCourseId(""); }} className="shadow-sm py-2 rounded-pill" style={{ height: 'auto' }}>
+                                                <option value="">-- الكل --</option>
+                                                {programs.map(p => (<option key={p.academicProgramId} value={p.academicProgramId}>{p.name}</option>))}
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={4} className="mb-3 mb-md-0">
+                                        <Form.Group className="mb-0">
+                                            <Form.Label className="small font-weight-bold text-muted">الدورة</Form.Label>
+                                            <Form.Control as="select" value={selectedCourseId} onChange={(e) => setSelectedCourseId(e.target.value)} className="shadow-sm py-2 rounded-pill" style={{ height: 'auto' }}>
+                                                <option value="">-- الكل --</option>
+                                                {availableCoursesForFilter.map(c => (<option key={c.courseId} value={c.courseId}>{c.name}</option>))}
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={4}>
+                                        <Form.Group className="mb-0">
+                                            <Form.Label className="small font-weight-bold text-muted d-block">الحالة</Form.Label>
+                                            <ButtonGroup className="w-100 shadow-sm rounded-pill overflow-hidden">
+                                                <Button variant={statusFilter === 'ACTIVE' ? 'primary' : 'light'} className={`border-0 py-2 ${statusFilter === 'ACTIVE' ? 'font-weight-bold' : 'text-muted'}`} onClick={() => setStatusFilter("ACTIVE")}>النشطة</Button>
+                                                <Button variant={statusFilter === 'COMPLETED' ? 'primary' : 'light'} className={`border-0 py-2 ${statusFilter === 'COMPLETED' ? 'font-weight-bold' : 'text-muted'}`} onClick={() => setStatusFilter("COMPLETED")}>المكتملة</Button>
+                                                <Button variant={statusFilter === 'ALL' ? 'primary' : 'light'} className={`border-0 py-2 ${statusFilter === 'ALL' ? 'font-weight-bold' : 'text-muted'}`} onClick={() => setStatusFilter("ALL")}>الكل</Button>
+                                            </ButtonGroup>
+                                        </Form.Group>
+                                    </Col>
                                 </Row>
                             </Card.Header>
-                            <Card.Body className="table-full-width table-responsive px-0">
-                                <Table className="table-hover">
-                                    <thead><tr><th className="border-0">#</th><th className="border-0">اسم الفصل</th><th className="border-0">الدورة</th><th className="border-0">المدرس</th><th className="border-0">الطلاب/السعة</th><th className="border-0">إجراءات</th></tr></thead>
-                                    <tbody>{renderTableBody()}</tbody>
-                                </Table>
+                            <Card.Body className="px-0">
+                                <div className="d-none d-md-block table-responsive">
+                                    <Table className="table-hover mb-0">
+                                        <thead className="bg-light">
+                                            <tr>
+                                                <th className="border-0 py-3 pl-4 text-muted small font-weight-bold align-middle">#</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold align-middle">اسم الفصل</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold align-middle">الدورة</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold align-middle">المدرس</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold text-center align-middle">الطلاب/السعة</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold text-right pr-4 align-middle">إجراءات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {renderTableBody()}
+                                        </tbody>
+                                    </Table>
+                                </div>
+                                <div className="d-md-none p-3 bg-light">
+                                    {renderMobileCards()}
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -323,6 +439,6 @@ function ClassroomManagement() {
             )}
         </>
     );
-}
+};
 
 export default ClassroomManagement;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Badge, Spinner, Alert } from 'react-bootstrap';
+import { Card, Row, Col, Badge, Spinner, Alert, Container, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { getMyClassrooms } from 'services/student/studentService';
 
@@ -51,60 +51,82 @@ function MyClassrooms() {
 
     return (
         <div className="content">
-            <Row>
-                <Col md="12">
-                    <Card className="str-card">
-                        <Card.Header>
-                            <Card.Title as="h4">فصولي الدراسية</Card.Title>
-                            <p className="card-category">تصفح جميع الفصول الدراسية المسجل بها</p>
-                        </Card.Header>
+            <Container fluid>
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 className="font-weight-bold mb-1" style={{ color: '#2c3e50' }}>فصولي الدراسية</h4>
+                        <p className="text-muted mb-0 small">تصفح جميع الفصول الدراسية المسجل بها ومتابعة حالتها</p>
+                    </div>
+                </div>
+
+                {classrooms.length === 0 ? (
+                    <Card className="border-0 shadow-sm text-center py-5" style={{ borderRadius: '15px' }}>
                         <Card.Body>
-                            {classrooms.length === 0 ? (
-                                <Alert variant="info">لا توجد لديك أي فصول دراسية مسجلة حاليًا.</Alert>
-                            ) : (
-                                <Row>
-                                    {classrooms.map((classroom) => {
-                                        const statusInfo = getStatusInfo(classroom.status);
-                                        return (
-                                            <Col lg="4" md="6" sm="12" key={classroom.classroomId} className="mb-4">
-                                                <Card className="card-classroom h-100 shadow-sm">
-                                                    <Card.Header className="bg-light text-center">
-                                                        <h5 className="card-title mb-1 fw-bold">{classroom.courseName}</h5>
-                                                        <small className="text-muted">{classroom.name}</small>
-                                                    </Card.Header>
-                                                    <Card.Body className="d-flex flex-column justify-content-center align-items-center">
-                                                        <div className="text-center mb-3">
-                                                            <i className="fas fa-chalkboard-teacher fa-2x text-info"></i>
-                                                            <p className="mb-0 mt-2"><strong>المدرس:</strong></p>
-                                                            <p className="text-muted">{classroom.teacherName}</p>
-                                                            <p className="mb-0 mt-2"><strong>عدد الطلاب</strong></p>
-                                                            <p className="text-muted">{classroom.enrolledStudentsCount}</p>
-                                                        </div>
-                                                       
-                                                    </Card.Body>
-                                                    <Card.Footer>
-                                                        <div className="d-flex justify-content-between align-items-center">
-                                                            <Badge bg={statusInfo.variant} className="p-2 d-flex align-items-center">
-                                                                {classroom.status.toUpperCase() === 'ACTIVE' && (
-                                                                    <i className="fas fa-cog fa-spin me-1"></i>
-                                                                )}
-                                                                {statusInfo.text}
-                                                            </Badge>
-                                                            <Link to={`/student/classrooms/${classroom.classroomId}`} className="btn btn-primary btn-sm">
-                                                                عرض التفاصيل
-                                                            </Link>
-                                                        </div>
-                                                    </Card.Footer>
-                                                </Card>
-                                            </Col>
-                                        );
-                                    })}
-                                </Row>
-                            )}
+                            <div className="mb-3 text-muted">
+                                <i className="fas fa-chalkboard fa-3x mb-3 text-secondary opacity-50"></i>
+                                <h5>لا توجد لديك أي فصول دراسية مسجلة حاليًا.</h5>
+                            </div>
                         </Card.Body>
                     </Card>
-                </Col>
-            </Row>
+                ) : (
+                    <Row>
+                        {classrooms.map((classroom) => {
+                            const statusInfo = getStatusInfo(classroom.status);
+                            return (
+                                <Col lg={4} md={6} sm={12} key={classroom.classroomId} className="mb-4">
+                                    <Card className="h-100 border-0 shadow-sm hover-card" style={{ borderRadius: '15px', transition: 'transform 0.2s' }}>
+                                        <Card.Header className="bg-white border-bottom-0 pt-4 px-4 pb-0" style={{ borderRadius: '15px 15px 0 0' }}>
+                                            <div className="d-flex justify-content-between align-items-start mb-2">
+                                                <Badge bg={statusInfo.variant} className="rounded-pill px-3 py-2">
+                                                    {classroom.status.toUpperCase() === 'ACTIVE' && (
+                                                        <i className="fas fa-circle text-white mr-1" style={{ fontSize: '8px' }}></i>
+                                                    )}
+                                                    {statusInfo.text}
+                                                </Badge>
+                                                <small className="text-muted font-weight-bold">#{classroom.classroomId}</small>
+                                            </div>
+                                            <h5 className="font-weight-bold text-dark mb-1">{classroom.courseName}</h5>
+                                            <p className="text-muted small mb-0">{classroom.name}</p>
+                                        </Card.Header>
+
+                                        <Card.Body className="px-4 py-3">
+                                            <div className="d-flex align-items-center mb-3 p-3 rounded" style={{ backgroundColor: '#f8f9fa' }}>
+                                                <div className="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center mr-3" style={{ width: '45px', height: '45px', color: '#007bff' }}>
+                                                    <i className="fas fa-user-tie fa-lg"></i>
+                                                </div>
+                                                <div>
+                                                    <div className="text-muted small">المدرس</div>
+                                                    <div className="font-weight-bold text-dark">{classroom.teacherName}</div>
+                                                </div>
+                                            </div>
+
+                                            <div className="d-flex justify-content-between text-center px-2">
+                                                <div>
+                                                    <div className="text-muted small mb-1">الطلاب المسجلين</div>
+                                                    <div className="h5 font-weight-bold text-primary mb-0">{classroom.enrolledStudentsCount}</div>
+                                                </div>
+                                                <div className="border-right"></div>
+                                                <div>
+                                                    <div className="text-muted small mb-1">التقدم</div>
+                                                    <div className="h5 font-weight-bold text-success mb-0">- %</div>
+                                                </div>
+                                            </div>
+                                        </Card.Body>
+
+                                        <Card.Footer className="bg-white border-0 px-4 pb-4 pt-0" style={{ borderRadius: '0 0 15px 15px' }}>
+                                            <Link to={`/student/classrooms/${classroom.classroomId}`} className="text-decoration-none">
+                                                <Button variant="outline-primary" className="w-100 rounded-pill shadow-sm" style={{ border: '2px solid' }}>
+                                                    عرض التفاصيل <i className="fas fa-arrow-left mr-2"></i>
+                                                </Button>
+                                            </Link>
+                                        </Card.Footer>
+                                    </Card>
+                                </Col>
+                            );
+                        })}
+                    </Row>
+                )}
+            </Container>
         </div>
     );
 }

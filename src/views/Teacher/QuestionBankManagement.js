@@ -238,9 +238,57 @@ function QuestionBankManagement() {
                 )}
                 {aiFlowState !== 'reviewing' && (
                     <>
-                        <Card className="mb-4">
-                            <Card.Header><Card.Title as="h4">بنك الأسئلة</Card.Title><p className="card-category">{isCurrentUserCoordinator ? "عرض ومراجعة أسئلة الدورات التي تنسقها" : "عرض وإدارة الأسئلة التي اقترحتها"}</p></Card.Header>
-                            <Card.Body><Row className="align-items-end"><Col md={4}><Form.Group><Form.Label>اختر الدورة:</Form.Label><Form.Select value={selectedCourseId} onChange={e => setSelectedCourseId(e.target.value)}>{availableCourses.map(course => (<option key={course.courseId} value={course.courseId}>{course.name} ({course.academicProgramName})</option>))}</Form.Select></Form.Group></Col><Col md={4}><Form.Group><Form.Label>بحث في نص السؤال:</Form.Label><Form.Control type="text" placeholder="اكتب للبحث..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} /></Form.Group></Col><Col md={4} className="d-flex justify-content-end gap-2"><Button variant="info" onClick={handleShowAiModal} disabled={!selectedCourseId}><i className="fas fa-magic me-2"></i> إنشاء بالـ AI</Button><Button variant="success" onClick={handleShowAddModal}><i className="fas fa-plus me-2"></i> {isCurrentUserCoordinator ? 'إضافة سؤال' : 'اقتراح سؤال'}</Button></Col></Row></Card.Body>
+                        <Card className="mb-4 shadow-sm border-0">
+                            <Card.Header className="bg-white border-0 pt-4 px-4 pb-0">
+                                <div className="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                    <div>
+                                        <Card.Title as="h4" className="font-weight-bold mb-1" style={{ color: '#2c3e50' }}>
+                                            بنك الأسئلة
+                                        </Card.Title>
+                                        <p className="text-muted small mb-0">
+                                            {isCurrentUserCoordinator ? "عرض ومراجعة أسئلة الدورات التي تنسقها" : "عرض وإدارة الأسئلة التي اقترحتها"}
+                                        </p>
+                                    </div>
+                                    <div className="d-flex gap-2">
+                                        <Button variant="info" className="btn-fill shadow-sm d-flex align-items-center" onClick={handleShowAiModal} disabled={!selectedCourseId}>
+                                            <i className="fas fa-magic me-2"></i> إنشاء بالـ AI
+                                        </Button>
+                                        <Button variant="success" className="btn-fill shadow-sm d-flex align-items-center" onClick={handleShowAddModal}>
+                                            <i className="fas fa-plus me-2"></i> {isCurrentUserCoordinator ? 'إضافة سؤال' : 'اقتراح سؤال'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </Card.Header>
+                            <Card.Body className="px-4 pb-4">
+                                <Row className="align-items-end mt-3">
+                                    <Col md={6}>
+                                        <Form.Group className="mb-3 mb-md-0">
+                                            <Form.Label className="font-weight-bold text-muted small">اختر الدورة</Form.Label>
+                                            <Form.Select
+                                                value={selectedCourseId}
+                                                onChange={e => setSelectedCourseId(e.target.value)}
+                                                className="shadow-sm border-0 bg-light"
+                                                style={{ height: '45px', borderRadius: '8px' }}
+                                            >
+                                                {availableCourses.map(course => (<option key={course.courseId} value={course.courseId}>{course.name} ({course.academicProgramName})</option>))}
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group>
+                                            <Form.Label className="font-weight-bold text-muted small">بحث في نص السؤال</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="اكتب للبحث..."
+                                                value={searchTerm}
+                                                onChange={e => setSearchTerm(e.target.value)}
+                                                className="shadow-sm border-0 bg-light"
+                                                style={{ height: '45px', borderRadius: '8px' }}
+                                            />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                            </Card.Body>
                         </Card>
                         {isCurrentUserCoordinator && (<div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2"><h5 className="mb-0">الأسئلة ({filteredQuestions.length})</h5><div className="d-flex flex-wrap gap-2"><ButtonGroup><Button variant={filterStatus === 'All' ? 'primary' : 'outline-primary'} size="sm" onClick={() => setFilterStatus('All')}>الكل</Button><Button variant={filterStatus === 'Pending' ? 'warning' : 'outline-warning'} size="sm" onClick={() => setFilterStatus('Pending')}>قيد المراجعة</Button><Button variant={filterStatus === 'Approved' ? 'success' : 'outline-success'} size="sm" onClick={() => setFilterStatus('Approved')}>معتمد</Button><Button variant={filterStatus === 'Rejected' ? 'danger' : 'outline-danger'} size="sm" onClick={() => setFilterStatus('Rejected')}>مرفوض</Button></ButtonGroup><ButtonGroup><Button variant={filterDifficulty === 'All' ? 'dark' : 'outline-dark'} size="sm" onClick={() => setFilterDifficulty('All')}>كل الصعوبات</Button><Button variant={filterDifficulty === 'Easy' ? 'success' : 'outline-success'} size="sm" onClick={() => setFilterDifficulty('Easy')}>سهل</Button><Button variant={filterDifficulty === 'Medium' ? 'warning' : 'outline-warning'} size="sm" onClick={() => setFilterDifficulty('Medium')}>متوسط</Button><Button variant={filterDifficulty === 'Hard' ? 'danger' : 'outline-danger'} size="sm" onClick={() => setFilterDifficulty('Hard')}>صعب</Button></ButtonGroup></div></div>)}
                         {loadingQuestions ? (<div className="text-center py-5"><Spinner animation="border" /></div>)

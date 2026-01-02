@@ -17,6 +17,7 @@ import {
     Spinner,
     Modal,
     Form,
+    Badge
 } from "react-bootstrap";
 
 const roleNameToIdMap = {
@@ -214,28 +215,98 @@ function UserManagement() {
     };
 
     const renderTableBody = () => {
-        if (loading) { return (<tr><td colSpan="7" className="text-center"><Spinner animation="border" /></td></tr>); }
+        if (loading) { return (<tr><td colSpan="5" className="text-center py-5"><Spinner animation="border" variant="primary" /></td></tr>); }
         if (filteredUsers.length === 0) {
-            if (searchQuery) { return (<tr><td colSpan="7" className="text-center">لا يوجد مستخدمون يطابقون بحثك.</td></tr>); }
-            return (<tr><td colSpan="7" className="text-center">لا توجد بيانات لعرضها.</td></tr>);
+            if (searchQuery) { return (<tr><td colSpan="5" className="text-center py-5"><div className="text-muted"><i className="fas fa-search fa-2x mb-3 d-block"></i>لا يوجد مستخدمون يطابقون بحثك.</div></td></tr>); }
+            return (<tr><td colSpan="5" className="text-center py-5"><div className="text-muted"><i className="fas fa-users-slash fa-2x mb-3 d-block"></i>لا توجد بيانات لعرضها.</div></td></tr>);
         }
         return filteredUsers.map((user) => (
-            <tr key={user.userId}>
-                <td><Form.Check type="checkbox" checked={selectedUsers.includes(user.userId)} onChange={() => handleSelectUser(user.userId)} /></td>
-                <td>{user.userId}</td>
-                <td>{user.firstName}</td>
-                <td>{user.lastName}</td>
-                <td>{user.email}</td>
-                <td>{roleIdToNameMap[user.role]}</td>
-                <td>
-                    <Button variant="warning" size="sm" className="ml-1" onClick={() => handleShowResetModal(user)} title="إعادة تعيين كلمة المرور">
+            <tr key={user.userId} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                <td className="pl-4 align-middle" style={{ width: '50px' }}>
+                    <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.userId)}
+                        onChange={() => handleSelectUser(user.userId)}
+                        style={{ transform: 'scale(1.2)', cursor: 'pointer' }}
+                    />
+                </td>
+                <td className="align-middle">
+                    <div className="d-flex align-items-center">
+                        <div className="rounded-circle d-flex align-items-center justify-content-center mr-3 flex-shrink-0 shadow-sm" style={{ width: '40px', height: '40px', backgroundColor: '#f8f9fa', color: '#6c757d' }}>
+                            <i className="fas fa-user"></i>
+                        </div>
+                        <div style={{ minWidth: 0 }}>
+                            <span className="font-weight-bold text-dark d-block text-truncate" style={{ maxWidth: '200px' }}>{user.firstName} {user.lastName}</span>
+                            <small className="text-muted">#{user.userId}</small>
+                        </div>
+                    </div>
+                </td>
+                <td className="align-middle">{user.email}</td>
+                <td className="text-right pr-4 align-middle">
+                    <Button
+                        variant="outline-warning"
+                        size="sm"
+                        className="mx-1 rounded"
+                        onClick={() => handleShowResetModal(user)}
+                        title="إعادة تعيين كلمة المرور"
+                        style={{ width: '35px', height: '35px', padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
                         <i className="fas fa-key"></i>
                     </Button>
-                    <Button variant="info" size="sm" onClick={() => handleShowEditModal(user)}>
-                        <i className="fas fa-edit"></i>
+                    <Button
+                        variant="outline-info"
+                        size="sm"
+                        className="mx-1 rounded"
+                        onClick={() => handleShowEditModal(user)}
+                        title="تعديل"
+                        style={{ width: '35px', height: '35px', padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                        <i className="fas fa-pen"></i>
                     </Button>
                 </td>
             </tr>
+        ));
+    };
+
+    const renderMobileCards = () => {
+        if (loading) { return (<div className="text-center py-5"><Spinner animation="border" variant="primary" /></div>); }
+        if (filteredUsers.length === 0) { return (<div className="text-center py-5 text-muted">لا توجد بيانات.</div>); }
+        return filteredUsers.map((user) => (
+            <Card key={user.userId} className="mb-3 border shadow-sm">
+                <Card.Body className="p-3">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <div className="d-flex align-items-center">
+                            <input
+                                type="checkbox"
+                                checked={selectedUsers.includes(user.userId)}
+                                onChange={() => handleSelectUser(user.userId)}
+                                className="mr-2"
+                                style={{ transform: 'scale(1.2)', cursor: 'pointer' }}
+                            />
+                            <div className="rounded-circle d-flex align-items-center justify-content-center mr-2 shadow-sm" style={{ width: '35px', height: '35px', backgroundColor: '#f8f9fa', color: '#6c757d' }}>
+                                <i className="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h6 className="font-weight-bold mb-0 text-dark">{user.firstName} {user.lastName}</h6>
+                                <small className="text-muted">{user.userId}</small>
+                            </div>
+                        </div>
+                        <Badge bg={user.role === 1 ? 'primary' : 'info'} className="px-2 py-1">{roleIdToNameMap[user.role]}</Badge>
+                    </div>
+                    <div className="mb-3 text-muted small border-bottom pb-2">
+                        <i className="fas fa-envelope mr-2"></i> {user.email}
+                    </div>
+
+                    <div className="d-flex justify-content-end pt-2">
+                        <Button variant="outline-warning" size="sm" className="ml-2 rounded" onClick={() => handleShowResetModal(user)}>
+                            <i className="fas fa-key mr-1"></i> تعيين كلمة المرور
+                        </Button>
+                        <Button variant="outline-info" size="sm" className="rounded" onClick={() => handleShowEditModal(user)}>
+                            <i className="fas fa-pen mr-1"></i> تعديل
+                        </Button>
+                    </div>
+                </Card.Body>
+            </Card>
         ));
     };
 
@@ -244,25 +315,93 @@ function UserManagement() {
             <Container fluid>
                 <Row>
                     <Col md="12">
-                        <Card className="str-table-with-hover">
-                            <Card.Header>
-                                <div className="d-flex justify-content-between align-items-center">
-                                    <div><Card.Title as="h4">إدارة المستخدمين</Card.Title><p className="card-category">عرض وتصفية المستخدمين في النظام</p></div>
+                        <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: '15px' }}>
+                            <Card.Header className="bg-white p-4 border-0" style={{ borderRadius: '15px 15px 0 0' }}>
+                                <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+                                    <div>
+                                        <h4 className="font-weight-bold mb-1" style={{ color: '#2c3e50' }}>إدارة المستخدمين</h4>
+                                        <p className="text-muted mb-0 small">عرض وتصفية المستخدمين (المدرسين والطلاب) في النظام</p>
+                                    </div>
+                                    <div className="mt-3 mt-md-0">
+                                        <Button variant="danger" className="ml-2 shadow-sm btn-fill rounded-pill" disabled={selectedUsers.length === 0} onClick={handleDeleteSelected}>
+                                            <i className="fas fa-trash mr-2"></i> حذف المحدد ({selectedUsers.length})
+                                        </Button>
+                                        <Button variant="success" className="shadow-sm btn-fill rounded-pill" onClick={handleShowAddModal}>
+                                            <i className="fas fa-user-plus mr-2"></i> إضافة مستخدم جديد
+                                        </Button>
+                                    </div>
                                 </div>
-                                <Row className="mt-3 align-items-center">
-                                    <Col xs={12} md={4}><Form.Group className="mb-0"><Form.Control type="text" placeholder="ابحث بالاسم أو البريد الإلكتروني..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} /></Form.Group></Col>
-                                    <Col xs={12} md={4}><ButtonGroup className="mr-2"><Button variant={filter === 'Students' ? 'primary' : 'outline-primary'} onClick={() => setFilter("Students")}>الطلاب</Button><Button variant={filter === 'Teachers' ? 'primary' : 'outline-primary'} onClick={() => setFilter("Teachers")}>المدرسون</Button></ButtonGroup></Col>
-                                    <Col xs={12} md={4} className="d-flex justify-content-end">
-                                        <Button variant="success" onClick={handleShowAddModal} className="mr-2"><i className="fas fa-plus mr-1"></i> إضافة مستخدم</Button>
-                                        <Button variant="danger" disabled={selectedUsers.length === 0} onClick={handleDeleteSelected}><i className="fas fa-trash mr-1"></i> حذف المحدد</Button>
+
+                                <Row className="align-items-center bg-light p-3 rounded mx-0">
+                                    <Col md={6} lg={5} className="mb-3 mb-md-0">
+                                        <div className="position-relative">
+                                            <i className="fas fa-search position-absolute text-muted" style={{ top: '50%', right: '15px', transform: 'translateY(-50%)', zIndex: 10 }}></i>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="ابحث بالاسم أو البريد الإلكتروني..."
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="pl-3 pr-5 shadow-sm border-0"
+                                                style={{ borderRadius: '50px', height: '45px' }}
+                                            />
+                                        </div>
+                                    </Col>
+                                    <Col md={6} lg={7} className="d-flex justify-content-md-end">
+                                        <div className="bg-white rounded-pill shadow-sm p-1 d-inline-flex">
+                                            <Button
+                                                variant={filter === 'Students' ? 'primary' : 'transparent'}
+                                                className={`px-4 py-2 ${filter === 'Students' ? 'font-weight-bold shadow-sm' : 'text-muted'}`}
+                                                onClick={() => setFilter("Students")}
+                                                style={{ borderRadius: '50px', border: 'none', transition: 'all 0.3s' }}
+                                            >
+                                                <i className="fas fa-user-graduate mr-2"></i> الطلاب
+                                            </Button>
+                                            <Button
+                                                variant={filter === 'Teachers' ? 'primary' : 'transparent'}
+                                                className={`px-4 py-2 ${filter === 'Teachers' ? 'font-weight-bold shadow-sm' : 'text-muted'}`}
+                                                onClick={() => setFilter("Teachers")}
+                                                style={{ borderRadius: '50px', border: 'none', transition: 'all 0.3s' }}
+                                            >
+                                                <i className="fas fa-chalkboard-teacher mr-2"></i> المدرسون
+                                            </Button>
+                                        </div>
                                     </Col>
                                 </Row>
                             </Card.Header>
-                            <Card.Body className="table-full-width table-responsive px-0">
-                                <Table className="table-hover">
-                                    <thead><tr><th className="border-0" style={{ width: '5%' }}><Form.Check type="checkbox" onChange={handleSelectAll} checked={filteredUsers.length > 0 && selectedUsers.length === filteredUsers.length} /></th><th className="border-0">#</th><th className="border-0">الاسم الأول</th><th className="border-0">اسم العائلة</th><th className="border-0">البريد الإلكتروني</th><th className="border-0">الدور</th><th className="border-0">إجراءات</th></tr></thead>
-                                    <tbody>{renderTableBody()}</tbody>
-                                </Table>
+                            <Card.Body className="px-0">
+                                <div className="d-none d-md-block table-responsive">
+                                    <Table className="table-hover mb-0">
+                                        <thead className="bg-light">
+                                            <tr>
+                                                <th className="border-0 pl-4 align-middle" style={{ width: '50px' }}>
+                                                    <input
+                                                        type="checkbox"
+                                                        onChange={handleSelectAll}
+                                                        checked={filteredUsers.length > 0 && selectedUsers.length === filteredUsers.length}
+                                                        style={{ transform: 'scale(1.2)', cursor: 'pointer' }}
+                                                    />
+                                                </th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold align-middle">المستخدم</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold align-middle">البريد الإلكتروني</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold text-right pr-4 align-middle">إجراءات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>{renderTableBody()}</tbody>
+                                    </Table>
+                                </div>
+                                <div className="d-md-none p-3 bg-light">
+                                    <div className="d-flex align-items-center mb-3 bg-white p-3 rounded shadow-sm border">
+                                        <input
+                                            type="checkbox"
+                                            onChange={handleSelectAll}
+                                            checked={filteredUsers.length > 0 && selectedUsers.length === filteredUsers.length}
+                                            style={{ transform: 'scale(1.2)', cursor: 'pointer' }}
+                                            className="mx-3"
+                                        />
+                                        <span className="font-weight-bold">تحديد الكل</span>
+                                    </div>
+                                    {renderMobileCards()}
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>

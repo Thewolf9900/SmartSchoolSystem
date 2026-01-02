@@ -163,8 +163,31 @@ function GradingManagement() {
     return (
         <>
             <Container fluid>
-                <Row><Col><Breadcrumb listProps={{ className: "bg-transparent p-0" }}><li className="breadcrumb-item"><Link to="/teacher/my-classrooms">فصولي</Link></li><li className="breadcrumb-item"><Link to={`/teacher/classroom/${classroomId}`}>البوابة</Link></li><Breadcrumb.Item active>الطلاب والدرجات</Breadcrumb.Item></Breadcrumb></Col></Row>
-                <Row className="mb-3 align-items-center"><Col xs="auto"><Button variant="outline-secondary" onClick={() => history.goBack()} title="رجوع"><i className="fas fa-arrow-right"></i></Button></Col><Col><h4 className="title mb-0">إدارة الطلاب والدرجات</h4></Col></Row>
+                <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: '15px', overflow: 'hidden' }}>
+                    <Card.Body className="p-4">
+                        <Row className="align-items-center">
+                            <Col xs="auto">
+                                <Button
+                                    variant="light"
+                                    className="rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                                    onClick={() => history.goBack()}
+                                    title="رجوع"
+                                    style={{ width: '50px', height: '50px', border: '1px solid #eef2f6' }}
+                                >
+                                    <i className="fas fa-arrow-right text-primary" style={{ fontSize: '1.2rem' }}></i>
+                                </Button>
+                            </Col>
+                            <Col>
+                                <Breadcrumb className="bg-transparent p-0 mb-1" listProps={{ className: "bg-transparent p-0 m-0" }}>
+                                    <li className="breadcrumb-item"><Link to="/teacher/my-classrooms" className="text-muted text-decoration-none small">فصولي</Link></li>
+                                    <li className="breadcrumb-item"><Link to={`/teacher/classroom/${classroomId}`} className="text-muted text-decoration-none small">البوابة</Link></li>
+                                    <Breadcrumb.Item active className="text-primary small">الطلاب والدرجات</Breadcrumb.Item>
+                                </Breadcrumb>
+                                <h3 className="mb-0 font-weight-bold ml-3" style={{ color: '#2c3e50' }}>إدارة الطلاب والدرجات</h3>
+                            </Col>
+                        </Row>
+                    </Card.Body>
+                </Card>
 
                 {loading ? (
                     <div className="text-center py-5"><Spinner animation="border" /><h5 className="mt-3">جاري تحميل بيانات الطلاب...</h5></div>

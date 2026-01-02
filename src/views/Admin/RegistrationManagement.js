@@ -95,14 +95,16 @@ function RegistrationManagement() {
     };
 
     const renderActionButtons = (reg) => {
+        const buttonStyle = { width: '35px', height: '35px', padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' };
+
         switch (reg.status) {
             case 'PendingReview':
                 return (
                     <>
-                        <Button variant="primary" size="sm" className="me-1" onClick={() => handleShowModal('requestPayment', reg)} title="طلب الدفع">
+                        <Button variant="outline-primary" size="sm" className="mx-1 rounded" onClick={() => handleShowModal('requestPayment', reg)} title="طلب الدفع" style={buttonStyle}>
                             <i className="fas fa-file-invoice-dollar"></i>
                         </Button>
-                        <Button variant="danger" size="sm" onClick={() => handleShowModal('reject', reg)} title="رفض الطلب">
+                        <Button variant="outline-danger" size="sm" className="mx-1 rounded" onClick={() => handleShowModal('reject', reg)} title="رفض الطلب" style={buttonStyle}>
                             <i className="fas fa-times-circle"></i>
                         </Button>
                     </>
@@ -110,26 +112,69 @@ function RegistrationManagement() {
             case 'PaymentSubmitted':
                 return (
                     <>
-                        <Button as="a" href={reg.paymentReceiptUrl} target="_blank" variant="info" size="sm" className="me-1" disabled={!reg.paymentReceiptUrl} title="عرض الإيصال">
-                            <i className="fas fa-receipt"></i>
-                        </Button>
-                        <Button variant="success" size="sm" className="me-1" onClick={() => handleShowModal('approve', reg)} title="موافقة نهائية">
+                        {reg.paymentReceiptUrl && (
+                            <Button as="a" href={reg.paymentReceiptUrl} target="_blank" variant="outline-info" size="sm" className="mx-1 rounded" title="عرض الإيصال" style={buttonStyle}>
+                                <i className="fas fa-receipt"></i>
+                            </Button>
+                        )}
+                        <Button variant="outline-success" size="sm" className="mx-1 rounded" onClick={() => handleShowModal('approve', reg)} title="موافقة نهائية" style={buttonStyle}>
                             <i className="fas fa-check-circle"></i>
                         </Button>
-                        <Button variant="danger" size="sm" onClick={() => handleShowModal('rejectReceipt', reg)} title="رفض الإيصال وطلب إيصال جديد">
+                        <Button variant="outline-danger" size="sm" className="mx-1 rounded" onClick={() => handleShowModal('rejectReceipt', reg)} title="رفض الإيصال وطلب إيصال جديد" style={buttonStyle}>
                             <i className="fas fa-undo"></i>
                         </Button>
                     </>
                 );
             case 'ReceiptRejected':
                 return (
-                    <Button variant="danger" size="sm" onClick={() => handleShowModal('reject', reg)} title="رفض الطلب نهائياً">
+                    <Button variant="outline-danger" size="sm" className="mx-1 rounded" onClick={() => handleShowModal('reject', reg)} title="رفض الطلب نهائياً" style={buttonStyle}>
                         <i className="fas fa-times-circle"></i>
                     </Button>
                 );
             default:
-                return <span className="text-muted">--</span>;
+                return <span className="text-muted small">--</span>;
         }
+    };
+
+    const renderMobileCards = () => {
+        if (loading) return <div className="text-center py-5"><Spinner animation="border" variant="primary" /></div>;
+        if (registrations.length === 0) return <div className="text-center py-5 text-muted">لا توجد طلبات تسجيل متاحة.</div>;
+
+        return registrations.map((reg) => (
+            <Card key={reg.registrationId} className="mb-3 border shadow-sm">
+                <Card.Body className="p-3">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <div className="d-flex align-items-center">
+                            <div className="rounded-circle d-flex align-items-center justify-content-center mr-2" style={{ width: '40px', height: '40px', backgroundColor: '#e3f2fd', color: '#007bff' }}>
+                                <i className="fas fa-user-graduate"></i>
+                            </div>
+                            <div>
+                                <h6 className="font-weight-bold mb-0 text-dark">{reg.fullName}</h6>
+                                <small className="text-muted text-break">{reg.email}</small>
+                            </div>
+                        </div>
+                        <Badge bg={statusMap[reg.status]?.variant || 'secondary'} className="px-2 py-1">
+                            {statusMap[reg.status]?.text || reg.status}
+                        </Badge>
+                    </div>
+
+                    <div className="mb-3">
+                        <div className="d-flex justify-content-between border-bottom pb-2 mb-2">
+                            <span className="text-muted small">البرنامج</span>
+                            <span className="font-weight-bold text-dark">{reg.academicProgramName}</span>
+                        </div>
+                        <div className="d-flex justify-content-between pb-2">
+                            <span className="text-muted small">تاريخ الطلب</span>
+                            <span className="text-dark">{new Date(reg.requestDate).toLocaleDateString('ar-EG')}</span>
+                        </div>
+                    </div>
+
+                    <div className="d-flex justify-content-end pt-2 border-top">
+                        {renderActionButtons(reg)}
+                    </div>
+                </Card.Body>
+            </Card>
+        ));
     };
 
     const renderModalContent = () => {
@@ -141,25 +186,25 @@ function RegistrationManagement() {
                 const defaultNote = `تمت الموافقة المبدئية. يرجى إرسال المبلغ وقدره ${data.totalPrice?.toLocaleString()} ل.س`;
                 return {
                     title: 'إرسال طلب الدفع',
-                    body: <Form.Control as="textarea" rows={3} defaultValue={defaultNote} onChange={e => setModalInput(e.target.value)} />,
+                    body: <Form.Control as="textarea" rows={3} defaultValue={defaultNote} onChange={e => setModalInput(e.target.value)} className="rounded shadow-sm" />,
                     submitText: 'إرسال الطلب'
                 };
             case 'approve':
                 return {
                     title: 'تأكيد الموافقة النهائية',
-                    body: <p>هل أنت متأكد من الموافقة على طلب <strong>{data.fullName}</strong>؟ سيتم إنشاء حساب طالب له.</p>,
+                    body: <p>هل أنت متأكد من الموافقة على طلب <strong className="text-success">{data.fullName}</strong>؟ <br />سيتم إنشاء حساب طالب له وإرسال بيانات الدخول.</p>,
                     submitText: 'نعم، موافقة'
                 };
             case 'reject':
                 return {
                     title: 'رفض طلب التسجيل',
-                    body: <Form.Control as="textarea" rows={3} onChange={e => setModalInput(e.target.value)} placeholder="اذكر سبب الرفض النهائي هنا..." required />,
+                    body: <Form.Control as="textarea" rows={3} onChange={e => setModalInput(e.target.value)} placeholder="اذكر سبب الرفض النهائي هنا..." required className="rounded shadow-sm" />,
                     submitText: 'تأكيد الرفض'
                 };
             case 'rejectReceipt':
                 return {
                     title: 'رفض إيصال الدفع',
-                    body: <Form.Control as="textarea" rows={3} onChange={e => setModalInput(e.target.value)} placeholder="اذكر سبب رفض الإيصال هنا (مثال: الصورة غير واضحة)..." required />,
+                    body: <Form.Control as="textarea" rows={3} onChange={e => setModalInput(e.target.value)} placeholder="اذكر سبب رفض الإيصال هنا (مثال: الصورة غير واضحة)..." required className="rounded shadow-sm" />,
                     submitText: 'إرسال سبب الرفض'
                 };
             default: return {};
@@ -171,49 +216,81 @@ function RegistrationManagement() {
     return (
         <>
             <Container fluid>
-                <Card>
-                    <Card.Header>
-                        <Card.Title as="h4">إدارة طلبات التسجيل</Card.Title>
-                        <p className="card-category">مراجعة والموافقة على طلبات التسجيل الجديدة.</p>
-                        <Form.Group as={Col} md="4" className="mt-3">
-                            <Form.Label>فلترة حسب الحالة</Form.Label>
-                            <Form.Select value={selectedStatus} onChange={e => setSelectedStatus(e.target.value)}>
-                                <option value="">عرض الكل</option>
-                                {Object.keys(statusMap).map(key => (
-                                    <option key={key} value={key}>{statusMap[key].text}</option>
-                                ))}
-                            </Form.Select>
-                        </Form.Group>
-                    </Card.Header>
-                    <Card.Body>
-                        <Table responsive hover>
-                            <thead>
-                                <tr>
-                                    <th>#</th><th>الاسم الكامل</th><th>البرنامج</th>
-                                    <th>تاريخ الطلب</th><th>الحالة</th><th>الإجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {loading ? (
-                                    <tr><td colSpan="6" className="text-center"><Spinner /></td></tr>
-                                ) : registrations.length > 0 ? (
-                                    registrations.map(reg => (
-                                        <tr key={reg.registrationId}>
-                                            <td>{reg.registrationId}</td>
-                                            <td>{reg.fullName} <br /><small className="text-muted">{reg.email}</small></td>
-                                            <td>{reg.academicProgramName}</td>
-                                            <td>{new Date(reg.requestDate).toLocaleDateString('ar-EG')}</td>
-                                            <td><Badge bg={statusMap[reg.status]?.variant || 'secondary'}>{statusMap[reg.status]?.text || reg.status}</Badge></td>
-                                            <td>{renderActionButtons(reg)}</td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr><td colSpan="6" className="text-center">لا توجد طلبات.</td></tr>
-                                )}
-                            </tbody>
-                        </Table>
-                    </Card.Body>
-                </Card>
+                <Row>
+                    <Col md="12">
+                        <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: '15px' }}>
+                            <Card.Header className="bg-white p-4 border-0" style={{ borderRadius: '15px 15px 0 0' }}>
+                                <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+                                    <div>
+                                        <h4 className="font-weight-bold mb-1" style={{ color: '#2c3e50' }}>إدارة طلبات التسجيل</h4>
+                                        <p className="text-muted mb-0 small">مراجعة والموافقة على طلبات التسجيل الجديدة</p>
+                                    </div>
+                                </div>
+
+                                <Row className="bg-light p-3 rounded mx-0 align-items-center">
+                                    <Col md={12}>
+                                        <Form.Group className="mb-0">
+                                            <Form.Label className="small font-weight-bold text-muted">فلترة حسب الحالة</Form.Label>
+                                            <Form.Select value={selectedStatus} onChange={e => setSelectedStatus(e.target.value)} className="shadow-sm py-2 rounded-pill" style={{ height: 'auto' }}>
+                                                <option value="">عرض الكل</option>
+                                                {Object.keys(statusMap).map(key => (
+                                                    <option key={key} value={key}>{statusMap[key].text}</option>
+                                                ))}
+                                            </Form.Select>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                            </Card.Header>
+
+                            <Card.Body className="px-0">
+                                <div className="d-none d-md-block table-responsive">
+                                    <Table className="table-hover mb-0">
+                                        <thead className="bg-light">
+                                            <tr>
+                                                <th className="border-0 py-3 pl-4 text-muted small font-weight-bold align-middle">#</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold align-middle">الاسم الكامل / البريد</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold align-middle">البرنامج</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold align-middle">تاريخ الطلب</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold align-middle text-center">الحالة</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold text-right pr-4 align-middle">الإجراءات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {loading ? (
+                                                <tr><td colSpan="6" className="text-center py-5"><Spinner animation="border" variant="primary" /></td></tr>
+                                            ) : registrations.length > 0 ? (
+                                                registrations.map(reg => (
+                                                    <tr key={reg.registrationId} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                                                        <td className="align-middle pl-4 font-weight-bold text-muted">{reg.registrationId}</td>
+                                                        <td className="align-middle">
+                                                            <span className="font-weight-bold text-dark d-block">{reg.fullName}</span>
+                                                            <small className="text-muted">{reg.email}</small>
+                                                        </td>
+                                                        <td className="align-middle text-dark">{reg.academicProgramName}</td>
+                                                        <td className="align-middle text-muted">{new Date(reg.requestDate).toLocaleDateString('ar-EG')}</td>
+                                                        <td className="align-middle text-center">
+                                                            <Badge bg={statusMap[reg.status]?.variant || 'secondary'} className="px-3 py-2 font-weight-normal">
+                                                                {statusMap[reg.status]?.text || reg.status}
+                                                            </Badge>
+                                                        </td>
+                                                        <td className="text-right pr-4 align-middle">
+                                                            {renderActionButtons(reg)}
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr><td colSpan="6" className="text-center py-5"><div className="text-muted">لا توجد طلبات تسجيل حالياً.</div></td></tr>
+                                            )}
+                                        </tbody>
+                                    </Table>
+                                </div>
+                                <div className="d-md-none p-3 bg-light">
+                                    {renderMobileCards()}
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
             </Container>
 
             <Modal show={showModal} onHide={handleCloseModal} centered>

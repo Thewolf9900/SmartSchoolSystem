@@ -76,59 +76,128 @@ function MyProfile() {
     }
 
     return (
-        <Container fluid>
-            <Row><Col md="12"><h4 className="title">ملفي الشخصي</h4></Col></Row>
-            <Row className="mt-3">
-                <Col md={5} className="mb-4">
-                    <Card>
-                        <Card.Header><Card.Title as="h5"><i className="nc-icon nc-single-02 mr-2"></i>المعلومات الشخصية</Card.Title></Card.Header>
-                        <Card.Body>
-                            <ListGroup variant="flush">
-                                <ListGroup.Item className="d-flex justify-content-between align-items-center">
-                                    <span className="text-muted">الاسم الأول</span>
-                                    <strong>{profile.firstName}</strong>
-                                </ListGroup.Item>
-                                <ListGroup.Item className="d-flex justify-content-between align-items-center">
-                                    <span className="text-muted">اسم العائلة</span>
-                                    <strong>{profile.lastName}</strong>
-                                </ListGroup.Item>
-                                <ListGroup.Item className="d-flex justify-content-between align-items-center">
-                                    <span className="text-muted">البريد الإلكتروني</span>
-                                    <strong>{profile.email}</strong>
-                                </ListGroup.Item>
+        <div className="content">
+            <Container fluid>
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h4 className="font-weight-bold mb-1" style={{ color: '#2c3e50' }}>ملفي الشخصي</h4>
+                        <p className="text-muted mb-0 small">عرض وتعديل بياناتك الشخصية وتأمين حسابك</p>
+                    </div>
+                </div>
 
-                            </ListGroup>
-                        </Card.Body>
-                    </Card>
-                </Col>
+                <Row>
+                    <Col md={5} className="mb-4">
+                        <Card className="border-0 shadow-sm h-100" style={{ borderRadius: '15px' }}>
+                            <Card.Body className="p-4">
+                                <div className="text-center mb-4">
+                                    <div className="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3 shadow-sm" style={{ width: '100px', height: '100px' }}>
+                                        <i className="nc-icon nc-single-02 text-primary fa-3x"></i>
+                                    </div>
+                                    <h5 className="font-weight-bold mb-1 text-dark">{profile.firstName} {profile.lastName}</h5>
+                                    <p className="text-muted small mb-0">{profile.email}</p>
+                                </div>
+                                <hr className="my-4" style={{ borderColor: '#f1f1f1' }} />
 
-                <Col md={7}>
-                    <Card>
-                        <Card.Header><Card.Title as="h5"><i className="nc-icon nc-key-25 mr-2"></i>تغيير كلمة المرور</Card.Title></Card.Header>
-                        <Card.Body>
-                            <Form onSubmit={handleSubmitPassword}>
-                                <Form.Group>
-                                    <Form.Label>كلمة المرور الحالية</Form.Label>
-                                    <Form.Control type="password" name="oldPassword" value={passwords.oldPassword} onChange={handlePasswordChange} required />
-                                </Form.Group>
-                                <Form.Group className="mt-3">
-                                    <Form.Label>كلمة المرور الجديدة</Form.Label>
-                                    <Form.Control type="password" name="newPassword" value={passwords.newPassword} onChange={handlePasswordChange} required />
-                                </Form.Group>
-                                <Form.Group className="mt-3">
-                                    <Form.Label>تأكيد كلمة المرور الجديدة</Form.Label>
-                                    <Form.Control type="password" name="confirmPassword" value={passwords.confirmPassword} onChange={handlePasswordChange} required isInvalid={!!passwordError} />
-                                    <Form.Control.Feedback type="invalid">{passwordError}</Form.Control.Feedback>
-                                </Form.Group>
-                                <Button variant="primary" type="submit" className="btn-fill mt-4 w-100" disabled={isSubmitting}>
-                                    {isSubmitting ? (<Spinner as="span" animation="border" size="sm" />) : (<><i className="fas fa-save mr-2"></i> حفظ كلمة المرور</>)}
-                                </Button>
-                            </Form>
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-        </Container>
+                                <div className="d-flex align-items-center mb-3">
+                                    <div className="icon-container bg-light rounded-circle p-2 ms-3 ml-3" style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <i className="nc-icon nc-badge text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted small mb-0">الاسم الأول</p>
+                                        <h6 className="font-weight-bold mb-0 text-dark">{profile.firstName}</h6>
+                                    </div>
+                                </div>
+
+                                <div className="d-flex align-items-center mb-3">
+                                    <div className="icon-container bg-light rounded-circle p-2 ms-3 ml-3" style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <i className="nc-icon nc-badge text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted small mb-0">اسم العائلة</p>
+                                        <h6 className="font-weight-bold mb-0 text-dark">{profile.lastName}</h6>
+                                    </div>
+                                </div>
+
+                                <div className="d-flex align-items-center">
+                                    <div className="icon-container bg-light rounded-circle p-2 ms-3 ml-3" style={{ width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        <i className="nc-icon nc-email-85 text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <p className="text-muted small mb-0">البريد الإلكتروني</p>
+                                        <h6 className="font-weight-bold mb-0 text-dark">{profile.email}</h6>
+                                    </div>
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+
+                    <Col md={7}>
+                        <Card className="border-0 shadow-sm h-100" style={{ borderRadius: '15px' }}>
+                            <Card.Header className="bg-white border-0 pt-4 px-4 pb-0" style={{ borderRadius: '15px 15px 0 0' }}>
+                                <div className="d-flex align-items-center mb-3">
+                                    <i className="nc-icon nc-key-25 text-primary mr-2 fa-lg"></i>
+                                    <h5 className="font-weight-bold text-dark mb-0">تغيير كلمة المرور</h5>
+                                </div>
+                            </Card.Header>
+                            <Card.Body className="p-4">
+                                <Form onSubmit={handleSubmitPassword}>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label className="small font-weight-bold text-muted">كلمة المرور الحالية</Form.Label>
+                                        <Form.Control
+                                            type="password"
+                                            name="oldPassword"
+                                            value={passwords.oldPassword}
+                                            onChange={handlePasswordChange}
+                                            required
+                                            className="border-light bg-light shadow-sm"
+                                            style={{ borderRadius: '8px', padding: '10px 15px' }}
+                                        />
+                                    </Form.Group>
+                                    <Row>
+                                        <Col md={6}>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label className="small font-weight-bold text-muted">كلمة المرور الجديدة</Form.Label>
+                                                <Form.Control
+                                                    type="password"
+                                                    name="newPassword"
+                                                    value={passwords.newPassword}
+                                                    onChange={handlePasswordChange}
+                                                    required
+                                                    className="border-light bg-light shadow-sm"
+                                                    style={{ borderRadius: '8px', padding: '10px 15px' }}
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={6}>
+                                            <Form.Group className="mb-3">
+                                                <Form.Label className="small font-weight-bold text-muted">تأكيد كلمة المرور الجديدة</Form.Label>
+                                                <Form.Control
+                                                    type="password"
+                                                    name="confirmPassword"
+                                                    value={passwords.confirmPassword}
+                                                    onChange={handlePasswordChange}
+                                                    required
+                                                    isInvalid={!!passwordError}
+                                                    className="border-light bg-light shadow-sm"
+                                                    style={{ borderRadius: '8px', padding: '10px 15px' }}
+                                                />
+                                                <Form.Control.Feedback type="invalid">{passwordError}</Form.Control.Feedback>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+
+                                    <div className="d-flex justify-content-end mt-4">
+                                        <Button variant="primary" type="submit" className="px-4 py-2" disabled={isSubmitting} style={{ borderRadius: '8px', fontWeight: 'bold' }}>
+                                            {isSubmitting ? (<Spinner as="span" animation="border" size="sm" />) : (<><i className="fas fa-save me-2 ml-2"></i> حفظ التغييرات</>)}
+                                        </Button>
+                                    </div>
+                                </Form>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            </Container>
+        </div>
     );
 }
 

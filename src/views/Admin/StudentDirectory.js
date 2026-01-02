@@ -142,84 +142,177 @@ const StudentDirectory = () => {
     };
 
 
+    const renderTableBody = () => {
+        if (loading) return <tr><td colSpan="5" className="text-center py-5"><Spinner animation="border" variant="primary" /></td></tr>;
+        if (filteredStudents.length === 0) return <tr><td colSpan="5" className="text-center py-5 text-muted">لا يوجد طلاب لعرضهم.</td></tr>;
+
+        return filteredStudents.map((student) => (
+            <tr key={student.userId} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                <td className="align-middle pl-4">
+                    <div className="d-flex align-items-center">
+                        <div className="rounded-circle d-flex align-items-center justify-content-center mr-3 flex-shrink-0 shadow-sm" style={{ width: '40px', height: '40px', backgroundColor: '#f8f9fa', color: '#6c757d' }}>
+                            <span className="font-weight-bold">{student.firstName.charAt(0)}</span>
+                        </div>
+                        <div>
+                            <span className="font-weight-bold text-dark d-block">{student.firstName} {student.lastName}</span>
+                        </div>
+                    </div>
+                </td>
+                <td className="align-middle text-muted">{student.email}</td>
+                {activeView === 'active' && <td className="align-middle"><Badge bg="light" text="dark" className="border">{getProgramNameForStudent(student)}</Badge></td>}
+                <td className="align-middle"><Badge bg={activeView === 'active' ? "success" : "warning"} className="px-3 py-2 font-weight-normal">{activeView === 'active' ? "مسجل" : "غير مسجل"}</Badge></td>
+                <td className="align-middle text-right pr-4">
+                    {activeView === 'active' ? (
+                        <Button
+                            variant="outline-info"
+                            size="sm"
+                            className="rounded mx-1"
+                            onClick={() => handleProfileClick(student)}
+                            disabled={actionLoading === student.userId}
+                            title="عرض الملف الأكاديمي"
+                            style={{ width: '35px', height: '35px', padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                            {actionLoading === student.userId ? <Spinner as="span" size="sm" /> : <i className="fas fa-id-card"></i>}
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="outline-success"
+                            size="sm"
+                            className="rounded mx-1"
+                            onClick={handleEnrollClick}
+                            title="التحاق ببرنامج"
+                            style={{ width: '35px', height: '35px', padding: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                            <i className="fas fa-user-plus"></i>
+                        </Button>
+                    )}
+                </td>
+            </tr>
+        ));
+    };
+
+    const renderMobileCards = () => {
+        if (loading) return <div className="text-center py-5"><Spinner animation="border" variant="primary" /></div>;
+        if (filteredStudents.length === 0) return <div className="text-center py-5 text-muted">لا يوجد طلاب لعرضهم.</div>;
+
+        return filteredStudents.map((student) => (
+            <Card key={student.userId} className="mb-3 border shadow-sm">
+                <Card.Body className="p-3">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <div className="d-flex align-items-center">
+                            <div className="rounded-circle d-flex align-items-center justify-content-center mr-2 shadow-sm" style={{ width: '40px', height: '40px', backgroundColor: '#e3f2fd', color: '#007bff' }}>
+                                <span className="font-weight-bold">{student.firstName.charAt(0)}</span>
+                            </div>
+                            <div>
+                                <h6 className="font-weight-bold mb-0 text-dark">{student.firstName} {student.lastName}</h6>
+                                <small className="text-muted text-break">{student.email}</small>
+                            </div>
+                        </div>
+                        <Badge bg={activeView === 'active' ? "success" : "warning"} className="px-2 py-1">{activeView === 'active' ? "مسجل" : "غير مسجل"}</Badge>
+                    </div>
+
+                    {activeView === 'active' && (
+                        <div className="mb-3 border-bottom pb-2">
+                            <span className="text-muted small d-block mb-1">البرنامج الأكاديمي</span>
+                            <Badge bg="light" text="dark" className="border">{getProgramNameForStudent(student)}</Badge>
+                        </div>
+                    )}
+
+                    <div className="d-flex justify-content-end pt-2">
+                        {activeView === 'active' ? (
+                            <Button variant="outline-info" size="sm" className="rounded w-100" onClick={() => handleProfileClick(student)} disabled={actionLoading === student.userId}>
+                                {actionLoading === student.userId ? <Spinner as="span" size="sm" /> : <><i className="fas fa-id-card mr-2"></i> عرض الملف الأكاديمي</>}
+                            </Button>
+                        ) : (
+                            <Button variant="outline-success" size="sm" className="rounded w-100" onClick={handleEnrollClick}>
+                                <i className="fas fa-user-plus mr-2"></i> التحاق ببرنامج
+                            </Button>
+                        )}
+                    </div>
+                </Card.Body>
+            </Card>
+        ));
+    };
+
     return (
         <>
             <Container fluid>
                 <Row>
                     <Col md="12">
-                        <Card>
-                            <Card.Header><Card.Title as="h4">دليل الطلاب</Card.Title></Card.Header>
-                            <Card.Body>
-                                <div className="bg-light p-3 mb-4 rounded border">
-                                    <Row className="align-items-center">
-                                        <Col lg="4" md="12">
-                                            <ButtonGroup className="w-100">
-                                                <Button variant={activeView === 'active' ? 'primary' : 'outline-primary'} onClick={() => { setActiveView('active'); setSelectedProgram('all'); }}>
-                                                    الطلاب المسجلين
-                                                </Button>
-                                                <Button variant={activeView === 'unassigned' ? 'primary' : 'outline-primary'} onClick={() => setActiveView('unassigned')}>
-                                                    غير المسجلين
-                                                </Button>
-                                            </ButtonGroup>
-                                        </Col>
-                                        <Col lg="4" md={6} className="mt-2 mt-lg-0">
+                        <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: '15px' }}>
+                            <Card.Header className="bg-white p-4 border-0" style={{ borderRadius: '15px 15px 0 0' }}>
+                                <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+                                    <div>
+                                        <h4 className="font-weight-bold mb-1" style={{ color: '#2c3e50' }}>دليل الطلاب</h4>
+                                        <p className="text-muted mb-0 small">استعراض وإدارة ملفات الطلاب الأكاديمية</p>
+                                    </div>
+                                    <div className="mt-3 mt-md-0 bg-light rounded-pill p-1 d-inline-flex">
+                                        <Button
+                                            variant={activeView === 'active' ? 'white' : 'transparent'}
+                                            className={`rounded-pill px-4 ${activeView === 'active' ? 'shadow-sm font-weight-bold text-primary' : 'text-muted border-0'}`}
+                                            onClick={() => { setActiveView('active'); setSelectedProgram('all'); }}
+                                        >
+                                            الطلاب المسجلين
+                                        </Button>
+                                        <Button
+                                            variant={activeView === 'unassigned' ? 'white' : 'transparent'}
+                                            className={`rounded-pill px-4 ${activeView === 'unassigned' ? 'shadow-sm font-weight-bold text-primary' : 'text-muted border-0'}`}
+                                            onClick={() => setActiveView('unassigned')}
+                                        >
+                                            غير المسجلين
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <Row className="bg-light p-3 rounded mx-0 align-items-center">
+                                    <Col md={activeView === 'active' ? 8 : 12}>
+                                        <div className="position-relative">
+                                            <i className="fas fa-search position-absolute text-muted" style={{ top: '50%', right: '15px', transform: 'translateY(-50%)', zIndex: 10 }}></i>
                                             <Form.Control
                                                 placeholder="بحث في القائمة الحالية..."
                                                 type="text"
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="pl-3 pr-5 shadow-sm border-0 rounded-pill"
+                                                style={{ height: '45px' }}
                                             />
+                                        </div>
+                                    </Col>
+                                    {activeView === 'active' && (
+                                        <Col md={4} className="mt-2 mt-md-0">
+                                            <Form.Select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)} className="shadow-sm border-0 rounded-pill" style={{ height: '45px' }}>
+                                                <option value="all">كل البرامج</option>
+                                                {programs.map(program => (
+                                                    <option key={program.academicProgramId} value={program.academicProgramId}>
+                                                        {program.name}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
                                         </Col>
-                                        {activeView === 'active' && (
-                                            <Col lg="4" md={6} className="mt-2 mt-lg-0">
-                                                <Form.Select value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)}>
-                                                    <option value="all">فلترة حسب البرنامج: الكل</option>
-                                                    {programs.map(program => (
-                                                        <option key={program.academicProgramId} value={program.academicProgramId}>
-                                                            {program.name}
-                                                        </option>
-                                                    ))}
-                                                </Form.Select>
-                                            </Col>
-                                        )}
-                                    </Row>
+                                    )}
+                                </Row>
+                            </Card.Header>
+
+                            <Card.Body className="px-0">
+                                <div className="d-none d-md-block table-responsive">
+                                    <Table className="table-hover mb-0">
+                                        <thead className="bg-light">
+                                            <tr>
+                                                <th className="border-0 py-3 pl-4 text-muted small font-weight-bold align-middle">الاسم الكامل</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold align-middle">البريد الإلكتروني</th>
+                                                {activeView === 'active' && <th className="border-0 py-3 text-muted small font-weight-bold align-middle">البرنامج</th>}
+                                                <th className="border-0 py-3 text-muted small font-weight-bold align-middle">الحالة</th>
+                                                <th className="border-0 py-3 text-muted small font-weight-bold text-right pr-4 align-middle">الإجراءات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {renderTableBody()}
+                                        </tbody>
+                                    </Table>
                                 </div>
-                                <Table striped hover responsive>
-                                    <thead className="thead-light">
-                                        <tr>
-                                            <th>الاسم الكامل</th>
-                                            <th>البريد الإلكتروني</th>
-                                            {activeView === 'active' && <th>البرنامج</th>}
-                                            <th>الحالة</th>
-                                            <th>الإجراءات</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {loading ? (
-                                            <tr><td colSpan="5" className="text-center"><Spinner animation="border" /></td></tr>
-                                        ) : filteredStudents.length > 0 ? (
-                                            filteredStudents.map((student) => (
-                                                <tr key={student.userId}>
-                                                    <td>{`${student.firstName} ${student.lastName}`}</td>
-                                                    <td>{student.email}</td>
-                                                    {activeView === 'active' && <td>{getProgramNameForStudent(student)}</td>}
-                                                    <td><Badge bg={activeView === 'active' ? "success" : "danger"}>{activeView === 'active' ? "مسجل" : "غير مسجل"}</Badge></td>
-                                                    <td>
-                                                        {activeView === 'active' ? (
-                                                            <Button variant="info" size="sm" onClick={() => handleProfileClick(student)} disabled={actionLoading === student.userId}>
-                                                                {actionLoading === student.userId ? <Spinner as="span" size="sm" /> : "عرض الملف"}
-                                                            </Button>
-                                                        ) : (
-                                                            <Button variant="success" size="sm" onClick={handleEnrollClick}>التحاق ببرنامج</Button>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr><td colSpan="5" className="text-center">لا يوجد طلاب لعرضهم.</td></tr>
-                                        )}
-                                    </tbody>
-                                </Table>
+                                <div className="d-md-none p-3 bg-light">
+                                    {renderMobileCards()}
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>

@@ -43,9 +43,19 @@ function TeacherDashboard() {
     // ... بقية الكود يبقى كما هو تمامًا ...
     const filteredAnnouncements = useMemo(() => {
         if (!announcements || announcements.length === 0) return [];
+
+        // Helper to normalize scope
+        const getScope = (scope) => {
+            if (scope === 'GLOBAL' || scope === 0) return 0;
+            if (scope === 'PROGRAM' || scope === 1) return 1;
+            if (scope === 'COURSE' || scope === 2) return 2;
+            if (scope === 'CLASSROOM' || scope === 3) return 3;
+            return -1;
+        };
+
         if (loadingContext) {
             return announcements
-                .filter(a => a.targetScope === 0)
+                .filter(a => getScope(a.targetScope) === 0)
                 .sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
         }
 
@@ -56,7 +66,8 @@ function TeacherDashboard() {
         return announcements
             .filter(a => {
                 const targetId = Number(a.targetId);
-                switch (a.targetScope) {
+                const scope = getScope(a.targetScope);
+                switch (scope) {
                     case 0: return true;
                     case 1: return teacherProgramIds.has(targetId);
                     case 2: return teacherCourseIds.has(targetId);
@@ -132,7 +143,11 @@ function TeacherDashboard() {
                                                     <ListGroup.Item key={a.announcementId} className="px-0">
                                                         <div className="d-flex justify-content-between">
                                                             <h6 className="font-weight-bold mb-1">{a.title}</h6>
-                                                            <Badge bg={a.targetScope === 0 ? 'danger' : a.targetScope === 1 ? 'warning' : a.targetScope === 2 ? 'primary' : 'info'} pill>
+                                                            <Badge bg={
+                                                                (a.targetScope === 0 || a.targetScope === 'GLOBAL') ? 'danger' :
+                                                                    (a.targetScope === 1 || a.targetScope === 'PROGRAM') ? 'warning' :
+                                                                        (a.targetScope === 2 || a.targetScope === 'COURSE') ? 'primary' : 'info'
+                                                            } pill>
                                                                 {a.targetName}
                                                             </Badge>
                                                         </div>

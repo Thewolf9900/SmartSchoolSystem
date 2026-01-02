@@ -25,6 +25,7 @@ function LectureManagement() {
     const [materialToDelete, setMaterialToDelete] = useState(null);
     const [materialTypeTab, setMaterialTypeTab] = useState('file');
     const [showCreateQuizModal, setShowCreateQuizModal] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     const fetchLectures = async (options = {}) => {
         const { keepSelection = false } = options;
@@ -95,6 +96,7 @@ function LectureManagement() {
     const handleAddMaterial = async (event) => {
         event.preventDefault();
         if (!selectedLecture) return;
+
         const formData = new FormData();
         if (materialTypeTab === 'file') {
             const fileInput = event.target.elements.file;
@@ -105,12 +107,18 @@ function LectureManagement() {
             formData.append('Title', event.target.elements.linkTitle.value);
             formData.append('Url', event.target.elements.linkUrl.value);
         }
+
+        setSubmitting(true);
         try {
             await addMaterialToLecture(selectedLecture.lectureId, formData);
             toast.success("تمت إضافة المادة بنجاح.");
             handleCloseAddMaterialModal();
             fetchLectures({ keepSelection: true });
-        } catch (error) { toast.error("فشل في إضافة المادة."); }
+        } catch (error) {
+            toast.error("فشل في إضافة المادة.");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     const handleConfirmDeleteMaterial = async () => {
@@ -133,10 +141,10 @@ function LectureManagement() {
             handleCloseCreateQuizModal();
             history.push(`/teacher/quiz/${response.data.lectureQuizId}/manage`);
         } catch (error) {
-             
+
             const errorMessage = error.response?.data?.message || "فشل في إنشاء الاختبار. يرجى المحاولة مرة أخرى.";
             toast.error(errorMessage);
-         }
+        }
     };
 
     const handleDeleteQuiz = async () => {
@@ -228,13 +236,37 @@ function LectureManagement() {
     return (
         <>
             <Container fluid>
-                <Row><Col><Breadcrumb listProps={{ className: "bg-transparent p-0" }}><li className="breadcrumb-item"><Link to="/teacher/my-classrooms">فصولي</Link></li><li className="breadcrumb-item"><Link to={`/teacher/classroom/${classroomId}`}>البوابة</Link></li><Breadcrumb.Item active>المحاضرات</Breadcrumb.Item></Breadcrumb></Col></Row>
-                <Row className="mb-3 align-items-center"><Col xs="auto"><Button variant="outline-secondary" onClick={() => history.goBack()} title="رجوع"><i className="fas fa-arrow-right"></i></Button></Col><Col><h4 className="title mb-0">إدارة المحاضرات والمواد</h4></Col></Row>
+                <Card className="border-0 shadow-sm mb-4" style={{ borderRadius: '15px', overflow: 'hidden' }}>
+                    <Card.Body className="p-4">
+                        <Row className="align-items-center">
+                            <Col xs="auto">
+                                <Button
+                                    variant="light"
+                                    className="rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+                                    onClick={() => history.goBack()}
+                                    title="رجوع"
+                                    style={{ width: '50px', height: '50px', border: '1px solid #eef2f6' }}
+                                >
+                                    <i className="fas fa-arrow-right text-primary" style={{ fontSize: '1.2rem' }}></i>
+                                </Button>
+                            </Col>
+                            <Col>
+                                <Breadcrumb className="bg-transparent p-0 mb-1" listProps={{ className: "bg-transparent p-0 m-0" }}>
+                                    <li className="breadcrumb-item"><Link to="/teacher/my-classrooms" className="text-muted text-decoration-none small">فصولي</Link></li>
+                                    <li className="breadcrumb-item"><Link to={`/teacher/classroom/${classroomId}`} className="text-muted text-decoration-none small">البوابة</Link></li>
+                                    <Breadcrumb.Item active className="text-primary small">المحاضرات</Breadcrumb.Item>
+                                </Breadcrumb>
+                                <h3 className="mb-0 font-weight-bold ml-3" style={{ color: '#2c3e50' }}>إدارة المحاضرات والمواد</h3>
+                                <small className="text-muted ml-3">إضافة وتعديل المحاضرات، المواد التعليمية، والاختبارات القصيرة</small>
+                            </Col>
+                        </Row>
+                    </Card.Body>
+                </Card>
                 {loading ? (<div className="text-center py-5"><Spinner animation="border" /><h5 className="mt-3">جاري التحميل...</h5></div>) : (<Row><Col md="4">{renderLectureList()}</Col><Col md="8">{renderLectureDetails()}</Col></Row>)}
             </Container>
 
             <Modal show={showAddLectureModal} onHide={handleCloseAddLectureModal} centered><Modal.Header closeButton><Modal.Title>إضافة محاضرة جديدة</Modal.Title></Modal.Header><Form onSubmit={handleAddLecture}><Modal.Body><Form.Group><Form.Label>عنوان المحاضرة</Form.Label><Form.Control type="text" name="title" required /></Form.Group><Form.Group className="mt-3"><Form.Label>ترتيب المحاضرة</Form.Label><Form.Control type="number" name="lectureOrder" defaultValue={nextLectureOrder} required min="1" /><Form.Text className="text-muted">سيتم استخدام هذا الرقم لترتيب المحاضرات.</Form.Text></Form.Group><Form.Group className="mt-3"><Form.Label>الوصف (اختياري)</Form.Label><Form.Control as="textarea" rows={3} name="description" /></Form.Group></Modal.Body><Modal.Footer><Button variant="secondary" onClick={handleCloseAddLectureModal}>إلغاء</Button><Button variant="primary" type="submit">إضافة</Button></Modal.Footer></Form></Modal>
-            <Modal show={showAddMaterialModal} onHide={handleCloseAddMaterialModal} centered><Modal.Header closeButton><Modal.Title>إضافة مادة إلى: {selectedLecture?.title}</Modal.Title></Modal.Header><Form onSubmit={handleAddMaterial}><Modal.Body><Tabs activeKey={materialTypeTab} onSelect={(k) => setMaterialTypeTab(k)} className="mb-3" fill><Tab eventKey="file" title={<span><i className="fas fa-file-upload"></i> رفع ملف</span>}><Form.Group><Form.Label>اختر الملف</Form.Label><Form.Control name="file" type="file" required={materialTypeTab === 'file'} /></Form.Group></Tab><Tab eventKey="link" title={<span><i className="fas fa-link"></i> إضافة رابط</span>}><Form.Group><Form.Label>عنوان الرابط</Form.Label><Form.Control type="text" name="linkTitle" placeholder="مثال: فيديو شرح" required={materialTypeTab === 'link'} /></Form.Group><Form.Group className="mt-3"><Form.Label>الرابط</Form.Label><Form.Control type="url" name="linkUrl" placeholder="https://example.com" required={materialTypeTab === 'link'} /></Form.Group></Tab></Tabs></Modal.Body><Modal.Footer><Button variant="secondary" onClick={handleCloseAddMaterialModal}>إلغاء</Button><Button variant="primary" type="submit">حفظ</Button></Modal.Footer></Form></Modal>
+            <Modal show={showAddMaterialModal} onHide={handleCloseAddMaterialModal} centered><Modal.Header closeButton><Modal.Title>إضافة مادة إلى: {selectedLecture?.title}</Modal.Title></Modal.Header><Form onSubmit={handleAddMaterial}><Modal.Body><Tabs activeKey={materialTypeTab} onSelect={(k) => setMaterialTypeTab(k)} className="mb-3" fill><Tab eventKey="file" title={<span><i className="fas fa-file-upload"></i> رفع ملف</span>}><Form.Group><Form.Label>اختر الملف</Form.Label><Form.Control name="file" type="file" required={materialTypeTab === 'file'} /></Form.Group></Tab><Tab eventKey="link" title={<span><i className="fas fa-link"></i> إضافة رابط</span>}><Form.Group><Form.Label>عنوان الرابط</Form.Label><Form.Control type="text" name="linkTitle" placeholder="مثال: فيديو شرح" required={materialTypeTab === 'link'} /></Form.Group><Form.Group className="mt-3"><Form.Label>الرابط</Form.Label><Form.Control type="url" name="linkUrl" placeholder="https://example.com" required={materialTypeTab === 'link'} /></Form.Group></Tab></Tabs></Modal.Body><Modal.Footer><Button variant="secondary" onClick={handleCloseAddMaterialModal} disabled={submitting}>إلغاء</Button><Button variant="primary" type="submit" disabled={submitting}>{submitting ? <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> : "حفظ"}</Button></Modal.Footer></Form></Modal>
             <Modal show={showDeleteLectureModal} onHide={handleCloseDeleteLectureModal} centered><Modal.Header closeButton><Modal.Title>تأكيد الحذف</Modal.Title></Modal.Header><Modal.Body>هل أنت متأكد من حذف: <strong>"{selectedLecture?.title}"</strong>؟<br /><span className="text-danger">سيتم حذف جميع المواد والاختبارات المرتبطة بها.</span></Modal.Body><Modal.Footer><Button variant="secondary" onClick={handleCloseDeleteLectureModal}>إلغاء</Button><Button variant="danger" onClick={handleConfirmDeleteLecture}>نعم، حذف</Button></Modal.Footer></Modal>
             <Modal show={showDeleteMaterialModal} onHide={handleCloseDeleteMaterialModal} centered><Modal.Header closeButton><Modal.Title>تأكيد الحذف</Modal.Title></Modal.Header><Modal.Body>هل أنت متأكد من حذف: <strong>"{materialToDelete?.title}"</strong>؟</Modal.Body><Modal.Footer><Button variant="secondary" onClick={handleCloseDeleteMaterialModal}>إلغاء</Button><Button variant="danger" onClick={handleConfirmDeleteMaterial}>نعم، حذف</Button></Modal.Footer></Modal>
 
