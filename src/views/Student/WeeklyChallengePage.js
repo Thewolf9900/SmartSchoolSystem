@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-// --- ✨ الإصلاح هنا: تمت إضافة ListGroup و Badge ---
+
 import {
     Container, Row, Col, Card, Button, Spinner,
     Alert, Accordion, ListGroup, Badge
@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 import { getMyClassrooms } from 'services/student/studentService';
 import { getChallengeLeaderboard } from 'services/student/challengeService';
 
-// مكون لوحة المتصدرين (Leaderboard)
+
 function Leaderboard({ courseId }) {
     const [leaderboard, setLeaderboard] = useState([]);
     const [loading, setLoading] = useState(true);

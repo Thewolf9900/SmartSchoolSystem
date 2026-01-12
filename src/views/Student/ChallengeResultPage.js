@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Spinner, Alert, Table, Badge, Button } from 'react-bootstrap';
-// ✨ تم تصحيح مسار الاستيراد
+
 import { getChallengeLeaderboard } from 'services/student/challengeService';
 
 // دالة مساعدة لتحويل الثواني إلى دقائق وثواني

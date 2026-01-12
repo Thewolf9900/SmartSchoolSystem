@@ -25,7 +25,7 @@ const RegistrationModal = ({ show, onHide, program }) => {
         e.preventDefault();
         setError(null);
 
-        // 1. التحقق من تطابق كلمتي المرور
+        // التحقق من تطابق كلمتي المرور
         if (formData.password !== formData.confirmPassword) {
             const errorMessage = "كلمة المرور وتأكيدها غير متطابقين.";
             setError(errorMessage);
@@ -46,7 +46,7 @@ const RegistrationModal = ({ show, onHide, program }) => {
             };
             const response = await submitRegistration(registrationData);
 
-            // 2. تحديث رسالة النجاح
+            // تحديث رسالة النجاح
             const successMessage = response.data.message || "تم إنشاء حسابك بنجاح! يمكنك الآن تسجيل الدخول لمتابعة حالة طلبك.";
             toast.success(successMessage);
             handleClose();

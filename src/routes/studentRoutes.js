@@ -61,7 +61,7 @@ const studentRoutes = [
         layout: "/student",
     },
     {
-        path: "/quiz-result/:submissionId", // ✨ التأكيد على استخدام submissionId هنا
+        path: "/quiz-result/:submissionId",
         component: QuizResult,
         layout: "/student",
     },

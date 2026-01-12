@@ -159,7 +159,7 @@ const StudentDirectory = () => {
                     </div>
                 </td>
                 <td className="align-middle text-muted">{student.email}</td>
-                {activeView === 'active' && <td className="align-middle"><Badge bg="light" text="dark" className="border">{getProgramNameForStudent(student)}</Badge></td>}
+
                 <td className="align-middle"><Badge bg={activeView === 'active' ? "success" : "warning"} className="px-3 py-2 font-weight-normal">{activeView === 'active' ? "مسجل" : "غير مسجل"}</Badge></td>
                 <td className="align-middle text-right pr-4">
                     {activeView === 'active' ? (
@@ -211,12 +211,7 @@ const StudentDirectory = () => {
                         <Badge bg={activeView === 'active' ? "success" : "warning"} className="px-2 py-1">{activeView === 'active' ? "مسجل" : "غير مسجل"}</Badge>
                     </div>
 
-                    {activeView === 'active' && (
-                        <div className="mb-3 border-bottom pb-2">
-                            <span className="text-muted small d-block mb-1">البرنامج الأكاديمي</span>
-                            <Badge bg="light" text="dark" className="border">{getProgramNameForStudent(student)}</Badge>
-                        </div>
-                    )}
+
 
                     <div className="d-flex justify-content-end pt-2">
                         {activeView === 'active' ? (
@@ -300,7 +295,7 @@ const StudentDirectory = () => {
                                             <tr>
                                                 <th className="border-0 py-3 pl-4 text-muted small font-weight-bold align-middle">الاسم الكامل</th>
                                                 <th className="border-0 py-3 text-muted small font-weight-bold align-middle">البريد الإلكتروني</th>
-                                                {activeView === 'active' && <th className="border-0 py-3 text-muted small font-weight-bold align-middle">البرنامج</th>}
+
                                                 <th className="border-0 py-3 text-muted small font-weight-bold align-middle">الحالة</th>
                                                 <th className="border-0 py-3 text-muted small font-weight-bold text-right pr-4 align-middle">الإجراءات</th>
                                             </tr>

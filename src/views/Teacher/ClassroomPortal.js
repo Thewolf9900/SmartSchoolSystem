@@ -71,7 +71,6 @@ function ClassroomPortal() {
             <Container fluid>
                 <Row>
                     <Col>
-                        {/* --- هذا هو الإصلاح النهائي --- */}
                         <Breadcrumb listProps={{ className: "bg-transparent p-0" }}>
                             <li className="breadcrumb-item">
                                 <Link to="/teacher/my-classrooms">فصولي الدراسية</Link>

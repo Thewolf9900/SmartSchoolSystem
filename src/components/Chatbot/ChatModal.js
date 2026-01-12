@@ -13,7 +13,7 @@ const initialWelcomeMessage = {
 
 function ChatModal({ show, onHide }) {
     const chatWindowRef = useRef(null);
-    const messageInputRef = useRef(null); // ✨ 1. إضافة ref للتحكم بالتركيز
+    const messageInputRef = useRef(null);
 
     const [conversations, setConversations] = useState([]);
     const [activeConvId, setActiveConvId] = useState(null);
@@ -79,7 +79,7 @@ function ChatModal({ show, onHide }) {
         fetchDetails();
     }, [activeConvId, conversations]);
 
-    // ✨ 2. إضافة useEffect مخصص وموثوق للتحكم بالتركيز
+
     useEffect(() => {
         if (!isSending && !isLoadingMessages && activeConvId && show) {
             setTimeout(() => messageInputRef.current?.focus(), 100);
@@ -161,7 +161,7 @@ function ChatModal({ show, onHide }) {
         setMessageInput("");
         setIsSending(true);
 
-        // ✨ 3. استخدام التحديث الوظيفي لمنع تضارب الحالة عند الإرسال السريع
+
         setConversations(prevConversations =>
             prevConversations.map(c =>
                 c.id === activeConvId ? { ...c, messages: [...(c.messages || []), userMessage] } : c

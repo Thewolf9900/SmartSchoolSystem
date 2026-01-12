@@ -13,7 +13,7 @@ function TeacherDashboard() {
     const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
     const [showContent, setShowContent] = useState(false);
 
-    // --- بدأ التعديل هنا: تعريف دالة الجلب باستخدام useCallback ---
+
     const fetchAnnouncements = useCallback(async () => {
         setLoadingAnnouncements(true);
         try {
@@ -24,27 +24,27 @@ function TeacherDashboard() {
         } finally {
             setLoadingAnnouncements(false);
         }
-    }, []); // مصفوفة فارغة لأن الدالة لا تعتمد على أي شيء
+    }, []);
 
-    // --- تحديث useEffect ليقوم بالجلب عند التركيز ---
+
     useEffect(() => {
-        // الجلب الأولي عند تحميل المكون
+
         fetchAnnouncements();
 
-        // إضافة مستمع لحدث "focus" على النافذة
+
         window.addEventListener('focus', fetchAnnouncements);
 
-        // دالة التنظيف: إزالة المستمع عند مغادرة الصفحة لمنع تسرب الذاكرة
+
         return () => {
             window.removeEventListener('focus', fetchAnnouncements);
         };
-    }, [fetchAnnouncements]); // الاعتماد على الدالة المعرفة بـ useCallback
+    }, [fetchAnnouncements]);
 
-    // ... بقية الكود يبقى كما هو تمامًا ...
+
     const filteredAnnouncements = useMemo(() => {
         if (!announcements || announcements.length === 0) return [];
 
-        // Helper to normalize scope
+
         const getScope = (scope) => {
             if (scope === 'GLOBAL' || scope === 0) return 0;
             if (scope === 'PROGRAM' || scope === 1) return 1;

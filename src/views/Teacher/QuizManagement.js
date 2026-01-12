@@ -5,7 +5,7 @@ import {
     Container, Row, Col, Card, Button, Modal, Form, Spinner,
     ListGroup, Breadcrumb, Badge, Image, Table, Alert
 } from 'react-bootstrap';
-import { getQuizDetails, addQuestionToQuiz, deleteQuizQuestion, getQuizSubmissions, toggleQuizStatus } from 'services/teacher/teacherService'; // 1. تم تعديل الاستيراد
+import { getQuizDetails, addQuestionToQuiz, deleteQuizQuestion, getQuizSubmissions, toggleQuizStatus } from 'services/teacher/teacherService';
 
 function QuizManagement() {
     const { quizId } = useParams();
@@ -13,7 +13,7 @@ function QuizManagement() {
     const [quizDetails, setQuizDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isSubmittingToggle, setIsSubmittingToggle] = useState(false); // تم تغيير الاسم لتجنب الالتباس
+    const [isSubmittingToggle, setIsSubmittingToggle] = useState(false);
     const [showAddQuestionModal, setShowAddQuestionModal] = useState(false);
     const [showSubmissionsModal, setShowSubmissionsModal] = useState(false);
     const initialNewQuestionState = { text: '', image: null, questionType: 'MultipleChoice', options: [{ text: '', isCorrect: true }, { text: '', isCorrect: false }] };
@@ -43,7 +43,7 @@ function QuizManagement() {
         fetchQuizData();
     }, [quizId]);
 
-     const handleToggleQuizStatus = async () => {
+    const handleToggleQuizStatus = async () => {
         if (quizDetails.questions.length === 0 && !quizDetails.isEnabled) {
             return toast.warn("لا يمكن تفعيل اختبار لا يحتوي على أسئلة.");
         }
@@ -54,9 +54,9 @@ function QuizManagement() {
         if (window.confirm(confirmMessage)) {
             setIsSubmittingToggle(true);
             try {
-                const response = await toggleQuizStatus(quizId);  
+                const response = await toggleQuizStatus(quizId);
                 toast.success(response.data.message);
-                fetchQuizData();  
+                fetchQuizData();
             } catch (err) {
                 toast.error(err.response?.data?.message || "فشل في تبديل حالة الاختبار.");
             } finally {
@@ -150,7 +150,7 @@ function QuizManagement() {
     if (loading) return <div className="text-center py-5"><Spinner animation="border" /></div>;
     if (error) return <Container><Alert variant="danger" className="mt-4">{error}</Alert></Container>;
 
-    const isQuizEnabled = quizDetails?.isEnabled;  
+    const isQuizEnabled = quizDetails?.isEnabled;
 
     return (
         <>
@@ -177,7 +177,6 @@ function QuizManagement() {
                         <Row className="align-items-center">
                             <Col><Card.Title as="h5">الأسئلة ({quizDetails?.questions?.length || 0})</Card.Title></Col>
                             <Col xs="auto" className="d-flex align-items-center">
-                                {/* 4. عرض شارة الحالة وزر تبديل الحالة */}
                                 <Badge bg={isQuizEnabled ? "success" : "secondary"} className="p-2 me-2">
                                     <i className={`fas ${isQuizEnabled ? "fa-check-circle" : "fa-ban"} me-1`}></i>
                                     {isQuizEnabled ? "الاختبار مفعّل" : "الاختبار معطّل"}
@@ -185,7 +184,7 @@ function QuizManagement() {
                                 <Button
                                     variant={isQuizEnabled ? "warning" : "success"}
                                     size="sm"
-                                    onClick={handleToggleQuizStatus} // استخدام الدالة الجديدة
+                                    onClick={handleToggleQuizStatus}
                                     disabled={isSubmittingToggle || (quizDetails.questions.length === 0 && !isQuizEnabled)}
                                     title={isQuizEnabled ? "تعطيل الاختبار للسماح بالتعديل" : "تفعيل الاختبار ليتمكن الطلاب من حله"}
                                 >

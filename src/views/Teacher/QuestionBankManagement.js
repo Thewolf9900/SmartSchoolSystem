@@ -5,7 +5,7 @@ import { useTeacherData } from 'contexts/TeacherDataContext';
 import { getCourseQuestions, getMyPendingSuggestions, reviewQuestion, deleteQuestion, suggestQuestion, updateQuestion, revertQuestionReview } from 'services/teacher/teacherService';
 import { generateQuestionsFromText, generateQuestionsFromFile } from 'services/shared/aiService';
 
-// --- دوال مساعدة (لا تغييرات) ---
+
 const translateAndColor = (key, value) => {
     const translations = {
         difficultyLevel: { Easy: { text: 'سهل', bg: 'success' }, Medium: { text: 'متوسط', bg: 'warning' }, Hard: { text: 'صعب', bg: 'danger' } },
@@ -33,7 +33,7 @@ const GeneratingLoader = () => (
 );
 
 function QuestionBankManagement() {
-    // --- حالات (States) أصلية ---
+
     const { coordinatedCourses, loadingCoordinatorStatus, classrooms } = useTeacherData();
     const [selectedCourseId, setSelectedCourseId] = useState('');
     const [questions, setQuestions] = useState([]);
@@ -55,7 +55,7 @@ function QuestionBankManagement() {
     const [isSubmittingReview, setIsSubmittingReview] = useState(false);
     const [submittingForm, setSubmittingForm] = useState(false);
 
-    // --- حالات (States) خاصة بالـ AI ومحدثة ---
+
     const [showAiModal, setShowAiModal] = useState(false);
     const [aiFlowState, setAiFlowState] = useState('idle');
     const [isGenerating, setIsGenerating] = useState(false);

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Card, Row, Col, Button, ProgressBar, Spinner, Alert, Container } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-// ✨ تم تصحيح مسار الاستيراد
+
 import { getWeeklyChallengeForCourse, submitWeeklyChallenge } from 'services/student/challengeService';
 
 function TakeChallengePage() {
